@@ -1,0 +1,156 @@
+[project]
+name = "vbvr-pro-inference"
+version = "0.1.0"
+description = "Unified inference environment for the VBVR-Pro model releases"
+readme = "README.md"
+requires-python = ">=3.10.1,<3.11"
+dependencies = [
+    "accelerate>=0.34.0",
+    "bitsandbytes",
+    "decord==0.6.0",
+    "diffsynth[audio]",
+    "diffusers",
+    "einops==0.8.1",
+    "gradio",
+    "huggingface-hub>=0.29.1,<2",
+    "imageio",
+    "imageio-ffmpeg",
+    "matplotlib==3.7.0",
+    "ninja",
+    "numpy==1.24.4",
+    "opencv-python==4.7.0.72",
+    "pillow",
+    "pyarrow==11.0.0",
+    "pyyaml==6.0.2",
+    "requests==2.32.3",
+    "safetensors>=0.4.5",
+    "scipy==1.10.1",
+    "sentencepiece==0.1.99",
+    "setuptools",
+    "transformers>=4.49,<6",
+    "triton",
+    "wandb",
+    "wheel",
+    "xlsxwriter",
+]
+
+[project.optional-dependencies]
+flash-attn = [
+    "flash-attn>=2.5.8,<3",
+]
+cu118 = [
+    "torch==2.5.1",
+    "torchaudio==2.5.1",
+    "torchcodec>=0.1,<0.2",
+    "torchvision==0.20.1",
+]
+cu121 = [
+    "torch==2.5.1",
+    "torchaudio==2.5.1",
+    "torchcodec>=0.1,<0.2",
+    "torchvision==0.20.1",
+]
+cu124 = [
+    "torch==2.5.1",
+    "torchaudio==2.5.1",
+    "torchcodec>=0.1,<0.2",
+    "torchvision==0.20.1",
+]
+cu126 = [
+    "torch==2.6.0",
+    "torchaudio==2.6.0",
+    "torchcodec>=0.2,<0.3",
+    "torchvision==0.21.0",
+]
+cu128 = [
+    "torch==2.7.1",
+    "torchaudio==2.7.1",
+    "torchcodec>=0.3,<0.6",
+    "torchvision==0.22.1",
+]
+cu129 = [
+    "torch==2.8.0",
+    "torchaudio==2.8.0",
+    "torchcodec>=0.6,<0.8",
+    "torchvision==0.23.0",
+]
+
+[tool.uv]
+package = false
+environments = ["sys_platform == 'linux' and platform_machine == 'x86_64'"]
+conflicts = [
+    [
+        { extra = "cu118" },
+        { extra = "cu121" },
+        { extra = "cu124" },
+        { extra = "cu126" },
+        { extra = "cu128" },
+        { extra = "cu129" },
+    ],
+]
+
+[tool.uv.sources]
+diffsynth = { path = "vbvr_pro_models/DiffSynth-Studio", editable = true }
+diffusers = { git = "https://github.com/huggingface/diffusers.git", rev = "58eb52c0803ea9af3abec60841c2a093bdf1f951" }
+torch = [
+    { index = "pytorch-cu118", extra = "cu118" },
+    { index = "pytorch-cu121", extra = "cu121" },
+    { index = "pytorch-cu124", extra = "cu124" },
+    { index = "pytorch-cu126", extra = "cu126" },
+    { index = "pytorch-cu128", extra = "cu128" },
+    { index = "pytorch-cu129", extra = "cu129" },
+]
+torchaudio = [
+    { index = "pytorch-cu118", extra = "cu118" },
+    { index = "pytorch-cu121", extra = "cu121" },
+    { index = "pytorch-cu124", extra = "cu124" },
+    { index = "pytorch-cu126", extra = "cu126" },
+    { index = "pytorch-cu128", extra = "cu128" },
+    { index = "pytorch-cu129", extra = "cu129" },
+]
+torchvision = [
+    { index = "pytorch-cu118", extra = "cu118" },
+    { index = "pytorch-cu121", extra = "cu121" },
+    { index = "pytorch-cu124", extra = "cu124" },
+    { index = "pytorch-cu126", extra = "cu126" },
+    { index = "pytorch-cu128", extra = "cu128" },
+    { index = "pytorch-cu129", extra = "cu129" },
+]
+
+[tool.uv.extra-build-dependencies]
+flash-attn = [
+    { requirement = "torch", match-runtime = true },
+    "packaging",
+    "psutil",
+    "ninja",
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu118"
+url = "https://download.pytorch.org/whl/cu118"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu121"
+url = "https://download.pytorch.org/whl/cu121"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu129"
+url = "https://download.pytorch.org/whl/cu129"
+explicit = true
