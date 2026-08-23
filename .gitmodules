@@ -1,0 +1,9 @@
+[submodule "vbvr_pro_models/BAGEL"]
+	path = vbvr_pro_models/BAGEL
+	url = git@github.com:bytedance-seed/BAGEL.git
+[submodule "vbvr_pro_models/DiffSynth-Studio"]
+	path = vbvr_pro_models/DiffSynth-Studio
+	url = git@github.com:modelscope/DiffSynth-Studio.git
+[submodule "vbvr_pro_models/ThinkMorph"]
+	path = vbvr_pro_models/ThinkMorph
+	url = git@github.com:ThinkMorph/ThinkMorph.git
