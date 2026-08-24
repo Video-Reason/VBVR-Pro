@@ -7,3 +7,6 @@
 [submodule "vbvr_pro_models/ThinkMorph"]
 	path = vbvr_pro_models/ThinkMorph
 	url = git@github.com:ThinkMorph/ThinkMorph.git
+[submodule "rl_training"]
+	path = rl_training
+	url = git@github.com:pufanyi/vbvr-rl.git
