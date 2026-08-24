@@ -1,0 +1,106 @@
+[project]
+name = "vbvr-rl"
+version = "0.1.0"
+description = "Distributed Wan2.2 training and reinforcement learning for VBVR-Pro"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+authors = [
+    { name = "Pu Fanyi", email = "FPU001@e.ntu.edu.sg" },
+]
+license = "MIT"
+dependencies = [
+    "decord2==3.4.0",
+    "diffusers[torch]>=0.37.1",
+    "easydict>=1.13",
+    "ffmpeg-binaries-compat==1.1.0",
+    "ftfy>=6.3.1",
+    # VBVR main_v2 scorer runtime. Keep these exact pins synchronized with
+    # src/eval/vbvr_runtime.py and the documented evaluator contract.
+    "imageio==2.37.3",
+    "imageio-ffmpeg==0.6.0",
+    "numpy==2.4.4",
+    "peft>=0.18.1",
+    "pydantic>=2.0",
+    "regex>=2026.3.32",
+    "torch==2.11.0",
+    "torchdata>=0.11.0",
+    "torchvision==0.26.0",
+    # Transformers 5.14.1 is the first project-tested release compatible with
+    # kernels 0.16's versioned LayerRepository API.
+    "transformers>=5.14.1",
+    "wandb>=0.25.1",
+    "rich>=14.0",
+    "loguru>=0.7",
+    "liger-kernel>=0.8.1",
+    # Diffusers FlashAttention-3 Hub backend. Keep this exact: 0.16 adds the
+    # stable-ABI cu126 resolver needed by the official torch 2.11 wheel.
+    "kernels==0.16.0",
+    "pyarrow>=19.0",
+    "safetensors>=0.7.0",
+    "webdataset>=1.0.2",
+    "datasets>=4.8.4",
+    # EasyOCR also depends on opencv-python-headless. Keep both distributions
+    # on the same release so their shared cv2 package cannot be overwritten by
+    # an incompatible major version.
+    "opencv-python==4.13.0.92",
+    "opencv-python-headless==4.13.0.92",
+    "pillow==12.2.0",
+    "scikit-image==0.26.0",
+    "scipy==1.17.1",
+    "tifffile==2026.3.3",
+    "openpyxl>=3.1.5",
+    "easyocr==1.7.2",
+    "norfair==2.3.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff==0.16.3",
+]
+
+[project.urls]
+Repository = "https://github.com/pufanyi/vbvr-rl"
+Documentation = "https://github.com/pufanyi/vbvr-rl/tree/main/docs"
+
+[tool.uv]
+required-version = "==0.11.33"
+# Norfair 2.3 still declares numpy<2 even though the pinned VBVR evaluator is
+# exercised with the project's NumPy 2 stack. Keep the runtime constraint
+# explicit so the evaluator dependencies can be resolved reproducibly.
+override-dependencies = [
+    "numpy==2.4.4",
+]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu126" }
+torchvision = { index = "pytorch-cu126" }
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/trainer/rewards/vbvr_vlm_eval_prompts.py" = ["E501"]
+
+[tool.ruff.format]
+exclude = ["src/trainer/rewards/vbvr_vlm_eval_prompts.py"]

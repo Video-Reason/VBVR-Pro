@@ -1,0 +1,117 @@
+trainer: dancegrpo
+model_path: storage/models/Wan2.2-I2V-A14B-Diffusers
+
+# Public 50-task VBVR-Pro RL snapshot. The four DP replicas each receive four
+# prompts, preserving a 16-prompt global optimizer batch.
+dataset_json: storage/datasets/VBVR-Pro-RL/materialized/dataset.json
+dataset_size: 50000
+shuffle_raw_indices: true
+shuffle_raw_indices_seed: 42
+num_frames: 161
+height: 256
+width: 256
+fps: 16
+
+output_dir: storage/checkpoints/dancegrpo_vbvr_pro_a14b_256x256x161_rule_cps_from_sft_diffsynth_mix_260603_bs16_lr_1e-5_full_tp2_fsdp4_liger_compile
+resume_from: storage/checkpoints/sft_diffsynth_mix_260603/checkpoint-epoch1
+reset_dataloader: true
+auto_resume: true
+
+# One single-node 8-GPU training mesh: four data replicas, with each replica
+# executing one logical Wan forward across a two-rank tensor-parallel group.
+rl_train_node_count: 0
+rl_train_rank_count: 0
+rl_actor_weight_sync: none
+rl_actor_weight_sync_interval: 1
+rl_async_rollout: false
+rl_async_rollout_prefetch_steps: 0
+rl_split_debug_logs: false
+
+# batch_size is per DP replica on the standard (non-shared-prompt) path:
+# 4 prompts/replica x 4 DP replicas = 16 global prompts per optimizer step.
+# This committed value targets one 8-GPU node. With WORLD_SIZE=4 nodes, TP2
+# creates DP16, so pass `--batch_size 1` to preserve the same global batch 16;
+# launching this config unchanged would silently use 64 global prompts.
+batch_size: 4
+gradient_accumulation_steps: 1
+num_epochs: 5
+learning_rate: 1.0e-5
+weight_decay: 0.01
+max_grad_norm: 1.0
+warmup_steps: 100
+save_steps: 100
+log_steps: 1
+seed: 42
+ema_decay: 0.0
+
+# Full fine-tuning keeps fp32 master parameter/Adam state while FSDP uses bf16
+# parameters for forward/backward compute.
+transformer_load_dtype: auto
+param_dtype: bfloat16
+reduce_dtype: float32
+gradient_checkpointing: true
+
+num_workers: 2
+prefetch_factor: 2
+persistent_workers: true
+
+fsdp: true
+hsdp: false
+tensor_parallel_size: 2
+expert_parallel: false
+train_experts: both
+lora_rank: 0
+
+# All Wan RMSNorms are global-across-head Q/K norms. Liger is accepted first,
+# then TP replaces those local kernels with its collective-aware equivalent.
+# Inductor compiles the surrounding Wan/T5/VAE graphs while leaving that small
+# TP collective as an eager graph boundary for correct backward semantics.
+use_liger_kernel: true
+torch_compile: true
+torch_compile_backend: inductor
+torch_compile_mode: null
+
+# With only four data replicas, the standard path preserves the 16-prompt
+# batch without forcing batch_size <= DP as shared-prompt mode would.
+grpo_shared_prompt_batch: false
+grpo_group_size: 16
+grpo_sample_batch_size: 1
+grpo_train_sample_batch_size: 1
+# T5 is no longer needed after raw encoding and VAE is no longer needed after
+# the rule reward. Offload both before the long full-FT replay/Adam phase.
+grpo_offload_inference_models: true
+# Delaying FSDP synchronization across all 16x17 replay backwards retains
+# unsharded full-FT gradients and OOMs. Reduce-scatter each replay instead.
+grpo_fsdp_sync_each_backward: true
+grpo_num_sampling_steps: 30
+grpo_clip_range: 1.0e-4
+grpo_kl_coeff: 0
+grpo_reward_fn: vbvr_rule
+grpo_sde_formula: flowcps
+grpo_sde_noise_scale: 0.7
+grpo_cps_noise_scale_range: [0.0, 1.0]
+grpo_cfg_scale: 1.0
+dancegrpo_share_group_init_noise: true
+dancegrpo_timestep_selection_ratio: 0.6
+
+vbvr_reward_evalkit_dir: storage/evalkits/vbvr-evalkit-interleave-main_v2
+vbvr_reward_evalkit_source_sha256: f99edd06fd39b5025a0a46871fc7280f7353d47e8de45b627a0b0711318fd258
+vbvr_reward_easyocr_module_path: storage/evalkits/easyocr-shared
+vbvr_reward_device: cpu
+vbvr_reward_fps: 16
+vbvr_reward_decode_batch_size: 8
+vbvr_reward_cpu_workers: 1
+vbvr_reward_cpu_threads_per_worker: 16
+vbvr_reward_use_process_pool: true
+vbvr_reward_prepared_width: 1024
+vbvr_reward_prepared_height: 1024
+vbvr_reward_max_duration_seconds: 5.0
+vbvr_reward_prepare_crf: 12
+vbvr_reward_fail_on_error: true
+vbvr_reward_task_specific_only: true
+vbvr_reward_tmp_dir: storage/tmp/vbvr_pro_a14b_rule_reward_tp2_fsdp4
+vbvr_reward_keep_tmp: false
+vbvr_reward_unsupported_score: 0.0
+
+wandb_project: wan-dancegrpo-vbvr-pro-a14b
+wandb_run_name: dancegrpo_vbvr_pro_a14b_256x256x161_rule_cps_bs16_lr1e-5_full_tp2_fsdp4_liger_compile

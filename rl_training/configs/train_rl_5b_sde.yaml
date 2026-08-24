@@ -1,0 +1,131 @@
+trainer: dancegrpo
+# TI2V-5B DanceGRPO RF-SDE rule-reward reference at eta=0.3.
+# Complete Diffusers pipeline with the DiffSynth step-35500 LoRA merged
+# into the matching Wan2.2 TI2V-5B base.
+model_path: storage/models/diffsynth_converted_5b/wan2.2-TI2V-5B_260715_vbvr_pro_step-35500
+
+# Materialize the already-downloaded public raw snapshot once with:
+# .venv/bin/python -m scripts.data.vbvr_pro_unpack_hf \
+#   --dataset-root storage/datasets/VBVR-Pro-RL \
+#   --output-dir storage/datasets/VBVR-Pro-RL/materialized \
+#   --source-revision ca0aaffea93b07d269c6fe2fbfe533f1fdab9aa1 \
+#   --expected-tasks 50 --expected-samples 50000 --workers 8
+dataset_json: storage/datasets/VBVR-Pro-RL/materialized/dataset.json
+dataset_size: 50000
+num_frames: 81
+height: 512
+width: 512
+fps: 16
+
+# The restored manifest is task-grouped. Apply a deterministic full-index
+# shuffle before batching so tasks never enter training sequentially.
+shuffle_raw_indices: true
+shuffle_raw_indices_seed: 42
+
+output_dir: storage/checkpoints/dancegrpo_vbvr_pro_5b_512x512x81_rule_sde_eta0p3_from_diffsynth_step35500_bs32_lr_5e-6_manifest_rl_evalkit_e140038f
+resume_from: null
+# Preserve optimizer/step/epoch/dataloader state when auto-resuming this run.
+reset_dataloader: null
+auto_resume: true
+
+# All ranks participate in rollout and training; the launcher receives the
+# distributed topology from the scheduler.
+rl_train_node_count: 0
+rl_train_rank_count: 0
+rl_actor_weight_sync: none
+rl_actor_weight_sync_interval: 1
+rl_async_rollout: false
+rl_async_rollout_prefetch_steps: 0
+rl_split_debug_logs: false
+
+batch_size: 32
+gradient_accumulation_steps: 1
+num_epochs: 5
+learning_rate: 5.0e-6
+weight_decay: 0.01
+max_grad_norm: 1.0
+warmup_steps: 5
+save_steps: 100
+log_steps: 1
+seed: 42
+ema_decay: 0.0
+transformer_load_dtype: float32
+gradient_checkpointing: true
+use_liger_kernel: true
+# The GRPO launcher loads the pinned Hopper FA3 snapshot from the persistent
+# offline kernel cache. Keep cuDNN disabled: its Wan low-noise backward has
+# produced non-finite gradients.
+attention_backend: _flash_3_hub
+disable_cudnn_sdp: true
+torch_compile: true
+torch_compile_backend: inductor
+torch_compile_mode: null
+
+num_workers: 2
+prefetch_factor: 2
+persistent_workers: true
+
+# HSDP shards within each eight-rank group and replicates across groups.
+fsdp: true
+expert_parallel: false
+hsdp: true
+train_experts: both
+lora_rank: 0
+lora_alpha: 32
+
+# batch_size remains 32 global prompts. The 32-prompt wave must divide the
+# data-parallel world; in the reference topology each prompt uses four ranks. This
+# turns two batch-4 replay chunks per rank into one batch-8 chunk, halving the
+# number of replay backward/HSDP synchronization calls without changing the
+# global prompt or rollout semantics.
+grpo_shared_prompt_batch: true
+grpo_shared_prompt_microbatch_size: 32
+grpo_delayed_replay: true
+grpo_delayed_replay_clip_range: 1.0e-2
+grpo_group_size: 32
+grpo_sample_batch_size: 8
+grpo_train_sample_batch_size: 8
+grpo_fsdp_sync_each_backward: true
+grpo_offload_inference_models: false
+grpo_num_sampling_steps: 30
+grpo_clip_range: 1.0e-4
+grpo_kl_coeff: 0
+grpo_reward_fn: vbvr_rule
+# Rollout ablation using the official DanceGRPO RF-SDE default eta=0.3.
+grpo_sde_formula: dancegrpo
+grpo_sde_noise_scale: 0.3
+grpo_cfg_scale: 1.0
+dancegrpo_share_group_init_noise: true
+dancegrpo_timestep_selection_ratio: 0.6
+
+# Pinned main_v2 revision e140038f2aee76ca518f464755fa8bc19b783ba5.
+# The contract fingerprint covers the entrypoint, evaluator Python, task
+# annotations, and requirements rather than trusting the checkout name alone.
+vbvr_reward_evalkit_dir: storage/evalkits/vbvr-evalkit-interleave-main_v2-e140038f
+vbvr_reward_evalkit_source_sha256: 4cc7d028d4106a28190a63bc179562d5ac9add9263cb71926dd6385c5714bcf8
+vbvr_reward_easyocr_module_path: storage/evalkits/easyocr-shared
+vbvr_reward_device: cpu
+vbvr_reward_fps: 16
+vbvr_reward_decode_batch_size: 8
+vbvr_reward_max_pending_jobs: 16
+# Each rank owns eight rollout rewards. Four scorer processes drain them in
+# two waves while keeping the node-wide native-thread budget at 8 ranks x
+# 4 workers x 4 threads = 128.
+vbvr_reward_cpu_workers: 4
+vbvr_reward_cpu_threads_per_worker: 4
+vbvr_reward_use_process_pool: true
+vbvr_reward_prepared_width: 1024
+vbvr_reward_prepared_height: 1024
+vbvr_reward_max_duration_seconds: 5.0625
+vbvr_reward_prepare_crf: 12
+# EvalKit e140038f still references G-16's meta_px after the grid-detection
+# fallback without initializing it. Preserve continuity until that exact
+# evaluator regression is fixed and covered by a GT self-score regression.
+vbvr_reward_fail_on_error: false
+vbvr_reward_task_specific_only: true
+vbvr_reward_tmp_dir: /tmp/wan-trainer/vbvr_pro_5b_512x512x81_rule_reward_sde_eta0p3_from_diffsynth_step35500_lr5e-6_manifest_rl_evalkit_e140038f
+vbvr_reward_keep_tmp: false
+vbvr_reward_unsupported_score: 0.0
+
+wandb_project: wan-dancegrpo-vbvr-pro-5b
+wandb_run_name: dancegrpo_vbvr_pro_5b_512x512x81_rule_sde_eta0p3_from_diffsynth_step35500_bs32_lr_5e-6_manifest_rl_evalkit_e140038f
