@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Union
 
 import torch
 from data.data_utils import pil_img2rgb
@@ -37,7 +36,7 @@ class ThinkMorphInterleaveInferencer(InterleaveInferencer):
         enable_taylorseer=False,
         max_rounds=10,
         system_prompt=None,
-    ) -> list[Union[str, Image.Image]]:
+    ) -> list[str | Image.Image]:
         del enable_taylorseer
         output_list = []
         gen_context = self.init_gen_context()
@@ -47,30 +46,18 @@ class ThinkMorphInterleaveInferencer(InterleaveInferencer):
         with torch.autocast(device_type="cuda", enabled=True, dtype=torch.bfloat16):
             if think or system_prompt:
                 if system_prompt is None:
-                    system_prompt = (
-                        VLM_THINK_SYSTEM_PROMPT
-                        if understanding_output
-                        else GEN_THINK_SYSTEM_PROMPT
-                    )
+                    system_prompt = VLM_THINK_SYSTEM_PROMPT if understanding_output else GEN_THINK_SYSTEM_PROMPT
                 gen_context = self.update_context_text(system_prompt, gen_context)
-                cfg_img_context = self.update_context_text(
-                    system_prompt, cfg_img_context
-                )
+                cfg_img_context = self.update_context_text(system_prompt, cfg_img_context)
 
             for input_term in input_lists:
                 if isinstance(input_term, str):
                     cfg_text_context = deepcopy(gen_context)
                     gen_context = self.update_context_text(input_term, gen_context)
-                    cfg_img_context = self.update_context_text(
-                        input_term, cfg_img_context
-                    )
+                    cfg_img_context = self.update_context_text(input_term, cfg_img_context)
                 elif isinstance(input_term, Image.Image):
-                    input_term = self.vae_transform.resize_transform(
-                        pil_img2rgb(input_term)
-                    )
-                    gen_context = self.update_context_image(
-                        input_term, gen_context, vae=not understanding_output
-                    )
+                    input_term = self.vae_transform.resize_transform(pil_img2rgb(input_term))
+                    gen_context = self.update_context_image(input_term, gen_context, vae=not understanding_output)
                     image_shapes = input_term.size[::-1]
                     cfg_text_context = deepcopy(gen_context)
                 else:
@@ -97,9 +84,7 @@ class ThinkMorphInterleaveInferencer(InterleaveInferencer):
                 )
                 output_list.append(gen_text)
                 gen_context = self.update_context_text(gen_text, gen_context)
-                cfg_img_context = self.update_context_text(
-                    gen_text, cfg_img_context
-                )
+                cfg_img_context = self.update_context_text(gen_text, cfg_img_context)
                 if "<image_start>" not in gen_text:
                     break
 
@@ -117,12 +102,8 @@ class ThinkMorphInterleaveInferencer(InterleaveInferencer):
                     cfg_renorm_type=cfg_renorm_type,
                 )
                 output_list.append(image)
-                image_input = self.vae_transform.resize_transform(
-                    pil_img2rgb(image)
-                )
-                gen_context = self.update_context_image(
-                    image_input, gen_context, vae=not understanding_output
-                )
+                image_input = self.vae_transform.resize_transform(pil_img2rgb(image))
+                gen_context = self.update_context_image(image_input, gen_context, vae=not understanding_output)
                 cfg_text_context = deepcopy(gen_context)
                 rounds += 1
 

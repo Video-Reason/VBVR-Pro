@@ -75,6 +75,11 @@ cu129 = [
     "torchvision==0.23.0",
 ]
 
+[dependency-groups]
+dev = [
+    "ruff==0.16.3",
+]
+
 [tool.uv]
 package = false
 environments = ["sys_platform == 'linux' and platform_machine == 'x86_64'"]
@@ -154,3 +159,31 @@ explicit = true
 name = "pytorch-cu129"
 url = "https://download.pytorch.org/whl/cu129"
 explicit = true
+
+[tool.ruff]
+extend-exclude = ["vbvr_pro_models"]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.per-file-target-version]
+"rl_training/**/*.py" = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["scripts", "src", "training"]
+
+[tool.ruff.lint.per-file-ignores]
+"rl_training/src/trainer/rewards/vbvr_vlm_eval_prompts.py" = ["E501"]
+
+[tool.ruff.format]
+exclude = ["rl_training/src/trainer/rewards/vbvr_vlm_eval_prompts.py"]

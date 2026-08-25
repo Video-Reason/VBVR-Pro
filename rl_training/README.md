@@ -303,11 +303,13 @@ Run project tests from the explicit test directory:
 .venv/bin/python -m pytest tests
 ```
 
-Run the same lint and formatting checks as CI:
+Run the repository-wide lint and formatting checks from the parent checkout
+root (see the [root development instructions](../README.md#development)):
 
 ```bash
-.venv/bin/ruff check --output-format=github .
-.venv/bin/ruff format --check .
+uv sync --project .. --frozen --only-group dev --no-install-project --inexact
+../.venv/bin/ruff check --output-format=github ..
+../.venv/bin/ruff format --check ..
 ```
 
 For rule-reward configs, validate the complete GRPO runtime before allocating

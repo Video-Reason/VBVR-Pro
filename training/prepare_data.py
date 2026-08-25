@@ -14,8 +14,9 @@ import hashlib
 import json
 import re
 import tarfile
+from collections.abc import Iterable
 from pathlib import Path, PurePosixPath
-from typing import Any, Iterable
+from typing import Any
 
 
 def parse_args() -> argparse.Namespace:
@@ -216,10 +217,7 @@ def thinkmorph_outputs(sample: dict[str, Any]) -> list[str]:
         if index < len(frame_metadata) and isinstance(frame_metadata[index], dict):
             progress = frame_metadata[index].get("progress")
         progress_text = f" at progress {progress:g}" if isinstance(progress, (int, float)) else ""
-        thought = (
-            f"Follow the instruction and render keyframe {index + 1} of "
-            f"{len(frames)}{progress_text}."
-        )
+        thought = f"Follow the instruction and render keyframe {index + 1} of {len(frames)}{progress_text}."
         prefix = "" if index == 0 else "<image_end>"
         outputs.append(f"{prefix}<think>{thought}</think><image_start>")
     outputs.append("<image_end><answer>The requested visual sequence is complete.</answer>")
@@ -230,9 +228,7 @@ def prepare_parquet_directory(path: Path, overwrite: bool) -> None:
     path.mkdir(parents=True, exist_ok=True)
     existing = sorted(path.glob("part-*.parquet"))
     if existing and not overwrite:
-        raise FileExistsError(
-            f"Generated parquet already exists in {path}; pass --overwrite-metadata to replace it."
-        )
+        raise FileExistsError(f"Generated parquet already exists in {path}; pass --overwrite-metadata to replace it.")
     if overwrite:
         for item in existing:
             item.unlink()
@@ -306,9 +302,7 @@ def write_parquet_datasets(
             compression="zstd",
             row_group_size=len(thinkmorph_rows),
         )
-        bagel_info[str(bagel_path.resolve())] = {
-            "num_row_groups": pq.ParquetFile(bagel_path).num_row_groups
-        }
+        bagel_info[str(bagel_path.resolve())] = {"num_row_groups": pq.ParquetFile(bagel_path).num_row_groups}
         thinkmorph_info[str(thinkmorph_path.resolve())] = {
             "num_row_groups": pq.ParquetFile(thinkmorph_path).num_row_groups
         }

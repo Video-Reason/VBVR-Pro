@@ -14,9 +14,10 @@
   required background session or service remains before reporting completion.
 - Run the suite as `.venv/bin/python -m pytest tests`. Do not use root-wide
   bare `pytest`; generated artifacts and external trees can disrupt discovery.
-- Before pushing, run `.venv/bin/ruff check --output-format=github .` and
-  `.venv/bin/ruff format --check .`. Keep Ruff exactly pinned in
-  `pyproject.toml` and `uv.lock`; CI installs only the locked dev group.
+- Before pushing, run the repository-wide Ruff checks from the parent checkout
+  root: `.venv/bin/ruff check --output-format=github .` and
+  `.venv/bin/ruff format --check .`. Ruff configuration, its exact pin, and CI
+  live in the parent repository rather than this subproject.
 - Use repository-relative examples. Never commit credentials, private
   endpoints, scheduler settings, machine-specific paths, or generated model,
   data, video, checkpoint, W&B, log, and cache artifacts.

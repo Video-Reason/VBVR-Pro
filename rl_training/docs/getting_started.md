@@ -203,8 +203,15 @@ Run tests from the explicit project test directory:
 
 ```bash
 .venv/bin/python -m pytest tests
-.venv/bin/ruff check --output-format=github .
-.venv/bin/ruff format --check .
+```
+
+Run the repository-wide lint and formatting checks from the parent checkout
+root (see the [root development instructions](../../README.md#development)):
+
+```bash
+uv sync --project .. --frozen --only-group dev --no-install-project --inexact
+../.venv/bin/ruff check --output-format=github ..
+../.venv/bin/ruff format --check ..
 ```
 
 For a selected RL config, run the same preflight used by the launcher:

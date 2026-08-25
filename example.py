@@ -11,10 +11,10 @@ from __future__ import annotations
 import argparse
 import random
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Sequence
-
+from typing import Any
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
@@ -30,28 +30,14 @@ class ModelSpec:
 
 MODEL_SPECS = {
     "bagel": ModelSpec("VBVR-Pro BAGEL", "BAGEL", True, "interleaved", 50),
-    "thinkmorph": ModelSpec(
-        "VBVR-Pro ThinkMorph", "ThinkMorph", True, "interleaved", 50
-    ),
-    "sensenova-u1": ModelSpec(
-        "VBVR-Pro SenseNova-U1 / Neo-Unify", "Transformers", True, "images", 50
-    ),
+    "thinkmorph": ModelSpec("VBVR-Pro ThinkMorph", "ThinkMorph", True, "interleaved", 50),
+    "sensenova-u1": ModelSpec("VBVR-Pro SenseNova-U1 / Neo-Unify", "Transformers", True, "images", 50),
     "flux2": ModelSpec("VBVR-Pro FLUX.2-dev", "Diffusers", True, "image", 50),
-    "qwen-image-edit": ModelSpec(
-        "VBVR-Pro Qwen-Image-Edit", "Diffusers", True, "image", 40
-    ),
-    "ltx2.3": ModelSpec(
-        "VBVR-Pro LTX-2.3 (merged)", "Diffusers", True, "audio-video", 40
-    ),
-    "wan2.1-i2v-14b": ModelSpec(
-        "VBVR-Pro Wan2.1-I2V-14B", "Diffusers", True, "video", 50
-    ),
-    "wan2.2-i2v-a14b": ModelSpec(
-        "VBVR-Pro Wan2.2-I2V-A14B", "Diffusers", True, "video", 50
-    ),
-    "wan2.2-ti2v-5b": ModelSpec(
-        "VBVR-Pro Wan2.2-TI2V-5B", "Diffusers", False, "video", 50
-    ),
+    "qwen-image-edit": ModelSpec("VBVR-Pro Qwen-Image-Edit", "Diffusers", True, "image", 40),
+    "ltx2.3": ModelSpec("VBVR-Pro LTX-2.3 (merged)", "Diffusers", True, "audio-video", 40),
+    "wan2.1-i2v-14b": ModelSpec("VBVR-Pro Wan2.1-I2V-14B", "Diffusers", True, "video", 50),
+    "wan2.2-i2v-a14b": ModelSpec("VBVR-Pro Wan2.2-I2V-A14B", "Diffusers", True, "video", 50),
+    "wan2.2-ti2v-5b": ModelSpec("VBVR-Pro Wan2.2-TI2V-5B", "Diffusers", False, "video", 50),
     "wan2.2-ti2v-5b-qwen-judge-rl": ModelSpec(
         "VBVR-Pro Wan2.2-TI2V-5B Qwen-Judge-RL",
         "Diffusers",
@@ -66,9 +52,7 @@ MODEL_SPECS = {
         "video",
         30,
     ),
-    "flux2-diffsynth": ModelSpec(
-        "VBVR-Pro FLUX.2-dev DiffSynth LoRA", "DiffSynth", True, "image", 50
-    ),
+    "flux2-diffsynth": ModelSpec("VBVR-Pro FLUX.2-dev DiffSynth LoRA", "DiffSynth", True, "image", 50),
     "qwen-image-edit-diffsynth": ModelSpec(
         "VBVR-Pro Qwen-Image-Edit DiffSynth LoRA",
         "DiffSynth",
@@ -146,8 +130,7 @@ WAN_RL_PAPER_SAMPLERS = (
 
 
 DEFAULT_NEGATIVE_PROMPT = (
-    "Bright tones, overexposed, static, blurred details, subtitles, low quality, "
-    "motion blur, distorted, artifacts"
+    "Bright tones, overexposed, static, blurred details, subtitles, low quality, motion blur, distorted, artifacts"
 )
 LTX_NEGATIVE_PROMPT = "blurry, low quality, flickering, motion blur, distorted"
 THINKMORPH_SYSTEM_PROMPT = (
@@ -159,9 +142,7 @@ THINKMORPH_SYSTEM_PROMPT = (
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--list-models", action="store_true", help="List model types and exit.")
     parser.add_argument(
         "--model_path",
@@ -178,9 +159,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Backend override; auto detects from the model path/repository name.",
     )
     prompt_group = parser.add_mutually_exclusive_group()
-    prompt_group.add_argument(
-        "--prompt", "--question", dest="prompt", help="Editing/generation instruction."
-    )
+    prompt_group.add_argument("--prompt", "--question", dest="prompt", help="Editing/generation instruction.")
     prompt_group.add_argument(
         "--prompt_file",
         "--prompt-file",
@@ -212,10 +191,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--seed",
         type=int,
-        help=(
-            "Random seed (defaults to 1 for BAGEL, 0 for Wan2.2 TI2V RL, "
-            "and 42 for all other models)."
-        ),
+        help=("Random seed (defaults to 1 for BAGEL, 0 for Wan2.2 TI2V RL, and 42 for all other models)."),
     )
     parser.add_argument("--steps", type=int, help="Number of denoising steps.")
     parser.add_argument(
@@ -256,8 +232,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--sampler",
         choices=[*WAN_RL_PAPER_SAMPLERS, "cps"],
         help=(
-            "Sampler for the Wan2.2 TI2V RL checkpoints. Use 'cps' with "
-            "--cps_eta for a custom Flow-CPS coefficient."
+            "Sampler for the Wan2.2 TI2V RL checkpoints. Use 'cps' with --cps_eta for a custom Flow-CPS coefficient."
         ),
     )
     parser.add_argument(
@@ -273,8 +248,7 @@ def build_parser() -> argparse.ArgumentParser:
         dest="cps_seed",
         type=int,
         help=(
-            "Optional independent seed for Flow-CPS transition noise. The main "
-            "--seed stream is reused when omitted."
+            "Optional independent seed for Flow-CPS transition noise. The main --seed stream is reused when omitted."
         ),
     )
     parser.add_argument("--device", default="cuda:0")
@@ -372,10 +346,7 @@ def build_parser() -> argparse.ArgumentParser:
 def list_models() -> None:
     width = max(len(key) for key in MODEL_SPECS)
     for key, spec in MODEL_SPECS.items():
-        if spec.needs_image:
-            image = "image required"
-        else:
-            image = "image optional"
+        image = "image required" if spec.needs_image else "image optional"
         print(f"{key:<{width}}  {spec.backend:<12}  {image:<26}  {spec.description}")
 
 
@@ -384,9 +355,7 @@ def detect_model_type(model_path: str) -> str:
     for marker, model_type in MODEL_NAME_MARKERS:
         if marker in normalized:
             return model_type
-    raise ValueError(
-        f"Cannot infer a model type from {model_path!r}; pass --model_type explicitly."
-    )
+    raise ValueError(f"Cannot infer a model type from {model_path!r}; pass --model_type explicitly.")
 
 
 def prepare_args(parser: argparse.ArgumentParser, args: argparse.Namespace) -> argparse.Namespace:
@@ -438,14 +407,8 @@ def prepare_args(parser: argparse.ArgumentParser, args: argparse.Namespace) -> a
         parser.error("--height must be positive")
 
     is_wan_rl = args.model_type in WAN_RL_MODEL_TYPES
-    if not is_wan_rl and any(
-        value is not None
-        for value in (args.sampler, args.cps_eta, args.cps_seed)
-    ):
-        parser.error(
-            "--sampler, --cps_eta, and --cps_seed are supported only by the "
-            "Wan2.2 TI2V RL checkpoints"
-        )
+    if not is_wan_rl and any(value is not None for value in (args.sampler, args.cps_eta, args.cps_seed)):
+        parser.error("--sampler, --cps_eta, and --cps_seed are supported only by the Wan2.2 TI2V RL checkpoints")
     if is_wan_rl:
         if args.cps_eta is not None:
             if not 0.0 <= args.cps_eta <= 1.0:
@@ -608,8 +571,7 @@ def validate_local_diffusers_repository(model_path: str) -> None:
                 class_name = registration[1] or ""
                 weightless_types = ("Scheduler", "Tokenizer", "Processor")
                 has_weights = any(
-                    next(component_path.rglob(pattern), None) is not None
-                    for pattern in ("*.safetensors", "*.bin")
+                    next(component_path.rglob(pattern), None) is not None for pattern in ("*.safetensors", "*.bin")
                 )
                 is_weightless = any(name in class_name for name in weightless_types)
                 if not is_weightless and not has_weights:
@@ -618,8 +580,7 @@ def validate_local_diffusers_repository(model_path: str) -> None:
     if missing:
         details = "\n".join(f"  - {path}" for path in sorted(set(missing)))
         raise FileNotFoundError(
-            "Incomplete local Diffusers repository; download the missing "
-            f"component(s) before inference:\n{details}"
+            f"Incomplete local Diffusers repository; download the missing component(s) before inference:\n{details}"
         )
 
 
@@ -640,9 +601,7 @@ def validate_safetensors_file(path: Path) -> None:
 
 def prepend_python_path(path: Path) -> None:
     if not path.is_dir():
-        raise FileNotFoundError(
-            f"required upstream repository is missing: {path}. See README.md for setup."
-        )
+        raise FileNotFoundError(f"required upstream repository is missing: {path}. See README.md for setup.")
     value = str(path.resolve())
     if value not in sys.path:
         sys.path.insert(0, value)
@@ -663,6 +622,7 @@ def run_bagel_family(args: argparse.Namespace) -> None:
     from accelerate import infer_auto_device_map, init_empty_weights, load_checkpoint_and_dispatch
     from data.data_utils import add_special_tokens
     from data.transforms import ImageTransform
+
     if args.model_type == "thinkmorph":
         from thinkmorph_compat import ThinkMorphInterleaveInferencer as InterleaveInferencer
     else:
@@ -704,9 +664,7 @@ def run_bagel_family(args: argparse.Namespace) -> None:
         language_model = Qwen2ForCausalLM(llm_config)
         vit_model = SiglipVisionModel(vit_config)
         model = Bagel(language_model, vit_model, config)
-        model.vit_model.vision_model.embeddings.convert_conv2d_to_linear(
-            vit_config, meta=True
-        )
+        model.vit_model.vision_model.embeddings.convert_conv2d_to_linear(vit_config, meta=True)
 
     tokenizer = Qwen2Tokenizer.from_pretrained(str(model_path))
     tokenizer, new_token_ids, _ = add_special_tokens(tokenizer)
@@ -720,9 +678,7 @@ def run_bagel_family(args: argparse.Namespace) -> None:
 
     device_map = infer_auto_device_map(
         model,
-        max_memory={
-            index: args.max_memory_per_gpu for index in range(torch.cuda.device_count())
-        },
+        max_memory={index: args.max_memory_per_gpu for index in range(torch.cuda.device_count())},
         no_split_module_classes=["Bagel", "Qwen2MoTDecoderLayer"],
     )
     same_device_modules = [
@@ -793,9 +749,7 @@ def run_bagel_family(args: argparse.Namespace) -> None:
 
     input_image = open_images(args.image_paths)[0]
     guidance = args.guidance_scale if args.guidance_scale is not None else 4.0
-    image_guidance = (
-        args.image_guidance_scale if args.image_guidance_scale is not None else 2.0
-    )
+    image_guidance = args.image_guidance_scale if args.image_guidance_scale is not None else 2.0
     inference_kwargs: dict[str, Any] = dict(
         think=args.think,
         understanding_output=args.understanding,
@@ -824,9 +778,7 @@ def run_bagel_family(args: argparse.Namespace) -> None:
         set_seed(torch, args.seed + attempt)
         attempt_kwargs = dict(inference_kwargs)
         if args.model_type == "thinkmorph":
-            attempt_kwargs["system_prompt"] = (
-                THINKMORPH_SYSTEM_PROMPT if args.think else None
-            )
+            attempt_kwargs["system_prompt"] = THINKMORPH_SYSTEM_PROMPT if args.think else None
             attempt_kwargs["text_temperature"] = min(1.0, 0.3 + 0.2 * attempt)
             if attempt:
                 attempt_kwargs["max_think_token_n"] = min(args.max_think_tokens, 1024)
@@ -853,15 +805,9 @@ def run_bagel_family(args: argparse.Namespace) -> None:
         save_images(selected_images, args.output, prefix="generated")
         if texts:
             response = "".join(
-                item if isinstance(item, str) else "<image>"
-                for item in result
-                if isinstance(item, (str, Image.Image))
+                item if isinstance(item, str) else "<image>" for item in result if isinstance(item, (str, Image.Image))
             )
-            response_output = (
-                args.output.with_suffix(".txt")
-                if args.output.suffix
-                else args.output / "response.txt"
-            )
+            response_output = args.output.with_suffix(".txt") if args.output.suffix else args.output / "response.txt"
             save_text([response], response_output)
 
 
@@ -887,15 +833,13 @@ def run_sensenova_u1(args: argparse.Namespace) -> None:
         raise ValueError("SenseNova-U1 width and height must be multiples of 32")
 
     tokenizer = AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True)
-    model = AutoModel.from_pretrained(
-        args.model_path, torch_dtype=torch.bfloat16, trust_remote_code=True
-    ).to(args.device)
+    model = AutoModel.from_pretrained(args.model_path, torch_dtype=torch.bfloat16, trust_remote_code=True).to(
+        args.device
+    )
     model.eval()
     input_image = open_images(args.image_paths)[0]
     guidance = args.guidance_scale if args.guidance_scale is not None else 1.0
-    image_guidance = (
-        args.image_guidance_scale if args.image_guidance_scale is not None else 1.0
-    )
+    image_guidance = args.image_guidance_scale if args.image_guidance_scale is not None else 1.0
     with torch.inference_mode():
         frames = model.interleave_gen_image_only(
             tokenizer,
@@ -959,9 +903,7 @@ def run_qwen_image_edit(args: argparse.Namespace) -> None:
     require_cuda(torch, args.device)
     set_seed(torch, args.seed)
     validate_local_diffusers_repository(args.model_path)
-    pipe = QwenImageEditPlusPipeline.from_pretrained(
-        args.model_path, torch_dtype=torch.bfloat16
-    )
+    pipe = QwenImageEditPlusPipeline.from_pretrained(args.model_path, torch_dtype=torch.bfloat16)
     place_diffusers_pipeline(pipe, args)
     kwargs: dict[str, Any] = {
         "image": open_images(args.image_paths),
@@ -988,9 +930,7 @@ def run_ltx_diffusers(args: argparse.Namespace) -> None:
     require_cuda(torch, args.device)
     set_seed(torch, args.seed)
     validate_local_diffusers_repository(args.model_path)
-    pipe = LTX2ImageToVideoPipeline.from_pretrained(
-        args.model_path, torch_dtype=torch.bfloat16
-    )
+    pipe = LTX2ImageToVideoPipeline.from_pretrained(args.model_path, torch_dtype=torch.bfloat16)
     place_diffusers_pipeline(pipe, args)
 
     requested_frames = args.num_frames or 49
@@ -1029,17 +969,11 @@ def run_wan_diffusers(args: argparse.Namespace) -> None:
     set_seed(torch, args.seed)
     validate_local_diffusers_repository(args.model_path)
     width, height = args.width or 832, args.height or 480
-    vae = AutoencoderKLWan.from_pretrained(
-        args.model_path, subfolder="vae", torch_dtype=torch.float32
-    )
+    vae = AutoencoderKLWan.from_pretrained(args.model_path, subfolder="vae", torch_dtype=torch.float32)
     if args.model_type == "wan2.2-ti2v-5b" and not args.image_paths:
-        pipe = WanPipeline.from_pretrained(
-            args.model_path, vae=vae, torch_dtype=torch.bfloat16
-        )
+        pipe = WanPipeline.from_pretrained(args.model_path, vae=vae, torch_dtype=torch.bfloat16)
     else:
-        pipe = WanImageToVideoPipeline.from_pretrained(
-            args.model_path, vae=vae, torch_dtype=torch.bfloat16
-        )
+        pipe = WanImageToVideoPipeline.from_pretrained(args.model_path, vae=vae, torch_dtype=torch.bfloat16)
     place_diffusers_pipeline(pipe, args)
     kwargs: dict[str, Any] = {
         "prompt": args.prompt,
@@ -1098,9 +1032,7 @@ def run_wan_rl_diffusers(args: argparse.Namespace) -> None:
         "width": width,
         "num_frames": args.num_frames or 81,
         "num_inference_steps": args.steps,
-        "guidance_scale": (
-            args.guidance_scale if args.guidance_scale is not None else 1.0
-        ),
+        "guidance_scale": (args.guidance_scale if args.guidance_scale is not None else 1.0),
         "sampler": args.sampler,
         "generator": generator,
     }
@@ -1109,9 +1041,7 @@ def run_wan_rl_diffusers(args: argparse.Namespace) -> None:
     if args.cps_eta is not None:
         kwargs["cps_eta"] = args.cps_eta
     if args.cps_seed is not None:
-        kwargs["cps_generator"] = torch.Generator(device=args.device).manual_seed(
-            args.cps_seed
-        )
+        kwargs["cps_generator"] = torch.Generator(device=args.device).manual_seed(args.cps_seed)
 
     frames = pipe(**kwargs).frames[0]
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -1174,15 +1104,11 @@ def run_ltx_diffsynth(args: argparse.Namespace) -> None:
 
     vram = diffsynth_vram_config(torch, args)
     base = args.base_model or "DiffSynth-Studio/LTX-2.3-Repackage"
-    text_encoder = (
-        args.text_encoder_model or "google/gemma-3-12b-it-qat-q4_0-unquantized"
-    )
+    text_encoder = args.text_encoder_model or "google/gemma-3-12b-it-qat-q4_0-unquantized"
     model_configs = [
         diffsynth_config(ModelConfig, text_encoder, "model-*.safetensors", **vram),
         diffsynth_config(ModelConfig, base, "transformer.safetensors", **vram),
-        diffsynth_config(
-            ModelConfig, base, "text_encoder_post_modules.safetensors", **vram
-        ),
+        diffsynth_config(ModelConfig, base, "text_encoder_post_modules.safetensors", **vram),
         diffsynth_config(ModelConfig, base, "video_vae_decoder.safetensors", **vram),
         diffsynth_config(ModelConfig, base, "audio_vae_decoder.safetensors", **vram),
         diffsynth_config(ModelConfig, base, "audio_vocoder.safetensors", **vram),
@@ -1217,11 +1143,7 @@ def run_ltx_diffsynth(args: argparse.Namespace) -> None:
     )
     video = video[:requested_frames]
     if audio is not None:
-        audio_samples = round(
-            requested_frames
-            / output_fps
-            * pipe.audio_vocoder.output_sampling_rate
-        )
+        audio_samples = round(requested_frames / output_fps * pipe.audio_vocoder.output_sampling_rate)
         audio = audio[..., :audio_samples]
     args.output.parent.mkdir(parents=True, exist_ok=True)
     write_video_audio_ltx2(
@@ -1251,9 +1173,7 @@ def run_flux2_lora(args: argparse.Namespace) -> None:
         model_configs=[
             diffsynth_config(ModelConfig, base, "text_encoder/*.safetensors", **vram),
             diffsynth_config(ModelConfig, base, "transformer/*.safetensors", **vram),
-            diffsynth_config(
-                ModelConfig, base, "vae/diffusion_pytorch_model.safetensors", **vram
-            ),
+            diffsynth_config(ModelConfig, base, "vae/diffusion_pytorch_model.safetensors", **vram),
         ],
         tokenizer_config=diffsynth_config(ModelConfig, base, "tokenizer/"),
     )
@@ -1298,12 +1218,8 @@ def run_qwen_image_edit_lora(args: argparse.Namespace) -> None:
                 "transformer/diffusion_pytorch_model*.safetensors",
                 **vram,
             ),
-            diffsynth_config(
-                ModelConfig, base, "text_encoder/model*.safetensors", **vram
-            ),
-            diffsynth_config(
-                ModelConfig, base, "vae/diffusion_pytorch_model.safetensors", **vram
-            ),
+            diffsynth_config(ModelConfig, base, "text_encoder/model*.safetensors", **vram),
+            diffsynth_config(ModelConfig, base, "vae/diffusion_pytorch_model.safetensors", **vram),
         ],
         tokenizer_config=diffsynth_config(ModelConfig, base, "tokenizer/"),
         processor_config=diffsynth_config(ModelConfig, base, "processor/"),
@@ -1354,12 +1270,8 @@ def run_wan_diffsynth(args: argparse.Namespace) -> None:
 
     if args.model_type == "wan2.1-i2v-14b-diffsynth":
         model_configs = [
-            diffsynth_config(
-                ModelConfig, base, "diffusion_pytorch_model*.safetensors", **vram
-            ),
-            diffsynth_config(
-                ModelConfig, base, "models_t5_umt5-xxl-enc-bf16.pth", **vram
-            ),
+            diffsynth_config(ModelConfig, base, "diffusion_pytorch_model*.safetensors", **vram),
+            diffsynth_config(ModelConfig, base, "models_t5_umt5-xxl-enc-bf16.pth", **vram),
             diffsynth_config(ModelConfig, base, "Wan2.1_VAE.pth", **vram),
             diffsynth_config(
                 ModelConfig,
@@ -1382,19 +1294,13 @@ def run_wan_diffsynth(args: argparse.Namespace) -> None:
                 "low_noise_model/diffusion_pytorch_model*.safetensors",
                 **vram,
             ),
-            diffsynth_config(
-                ModelConfig, base, "models_t5_umt5-xxl-enc-bf16.pth", **vram
-            ),
+            diffsynth_config(ModelConfig, base, "models_t5_umt5-xxl-enc-bf16.pth", **vram),
             diffsynth_config(ModelConfig, base, "Wan2.1_VAE.pth", **vram),
         ]
     else:
         model_configs = [
-            diffsynth_config(
-                ModelConfig, base, "diffusion_pytorch_model*.safetensors", **vram
-            ),
-            diffsynth_config(
-                ModelConfig, base, "models_t5_umt5-xxl-enc-bf16.pth", **vram
-            ),
+            diffsynth_config(ModelConfig, base, "diffusion_pytorch_model*.safetensors", **vram),
+            diffsynth_config(ModelConfig, base, "models_t5_umt5-xxl-enc-bf16.pth", **vram),
             diffsynth_config(ModelConfig, base, "Wan2.2_VAE.pth", **vram),
         ]
 
@@ -1402,10 +1308,7 @@ def run_wan_diffsynth(args: argparse.Namespace) -> None:
     if args.tokenizer_model:
         tokenizer_source = args.tokenizer_model
         tokenizer_pattern = ""
-    elif base_path.is_dir():
-        tokenizer_source = base
-        tokenizer_pattern = "google/umt5-xxl/"
-    elif args.model_type == "wan2.1-i2v-14b-diffsynth":
+    elif base_path.is_dir() or args.model_type == "wan2.1-i2v-14b-diffsynth":
         tokenizer_source = base
         tokenizer_pattern = "google/umt5-xxl/"
     else:
@@ -1416,9 +1319,7 @@ def run_wan_diffsynth(args: argparse.Namespace) -> None:
         torch_dtype=torch.bfloat16,
         device=args.device,
         model_configs=model_configs,
-        tokenizer_config=diffsynth_config(
-            ModelConfig, tokenizer_source, tokenizer_pattern
-        ),
+        tokenizer_config=diffsynth_config(ModelConfig, tokenizer_source, tokenizer_pattern),
     )
 
     if args.model_type == "wan2.2-i2v-a14b-diffsynth":

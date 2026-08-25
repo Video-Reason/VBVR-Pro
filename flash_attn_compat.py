@@ -35,9 +35,7 @@ def install_flash_attn_fallback() -> None:
     ):
         del max_seqlen_q, max_seqlen_k
         if window_size not in {(-1, -1), None}:
-            raise NotImplementedError(
-                "the SDPA fallback does not implement local attention windows"
-            )
+            raise NotImplementedError("the SDPA fallback does not implement local attention windows")
 
         outputs = []
         sequence_count = cu_seqlens_q.numel() - 1
@@ -51,15 +49,9 @@ def install_flash_attn_fallback() -> None:
             attention_mask = None
             if causal:
                 query_length, key_length = query.shape[-2], key.shape[-2]
-                query_positions = torch.arange(
-                    query_length, device=query.device
-                ).unsqueeze(1)
-                key_positions = torch.arange(
-                    key_length, device=query.device
-                ).unsqueeze(0)
-                attention_mask = key_positions <= (
-                    key_length - query_length + query_positions
-                )
+                query_positions = torch.arange(query_length, device=query.device).unsqueeze(1)
+                key_positions = torch.arange(key_length, device=query.device).unsqueeze(0)
+                attention_mask = key_positions <= (key_length - query_length + query_positions)
 
             output = scaled_dot_product_attention(
                 query,
@@ -78,6 +70,4 @@ def install_flash_attn_fallback() -> None:
     module.__version__ = "0.0.sdpa-fallback"
     module.flash_attn_varlen_func = flash_attn_varlen_func
     sys.modules["flash_attn"] = module
-    print(
-        "WARNING: flash-attn is unavailable; using the slower PyTorch SDPA fallback."
-    )
+    print("WARNING: flash-attn is unavailable; using the slower PyTorch SDPA fallback.")

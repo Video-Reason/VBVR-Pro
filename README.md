@@ -246,6 +246,19 @@ Use `python example.py --list-models` for the full list of supported model types
 For reproducible SFT data preparation and multi-node training of all model families,
 see [`TRAINING.md`](TRAINING.md).
 
+## Development
+
+Install the repository-wide lint environment and run the same checks as CI:
+
+```bash
+uv sync --frozen --only-group dev --no-install-project --inexact
+.venv/bin/ruff check --output-format=github .
+.venv/bin/ruff format --check .
+```
+
+The checks cover Python code in the root project and `rl_training/`. External
+repositories under `vbvr_pro_models/` are excluded.
+
 ## Download Evaluation Data
 
 ```bash
