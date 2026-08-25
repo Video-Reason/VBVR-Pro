@@ -83,9 +83,6 @@ end
 
 set -l master_port (set -q MASTER_PORT; and echo $MASTER_PORT; or echo 29500)
 
-set -l project_root (realpath (dirname (status filename))/../..)
-cd $project_root
-
 echo "Preparing DanceGRPO: node $RANK/$WORLD_SIZE, $nproc GPUs/node, master=$MASTER_ADDR:$master_port"
 
 source (dirname (status filename))/../lib/env.fish

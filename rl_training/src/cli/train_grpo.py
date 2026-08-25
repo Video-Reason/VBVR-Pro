@@ -7,10 +7,10 @@ Usage:
 
 import argparse
 import os
-from pathlib import Path
 
 import yaml
 
+from src.cli.config_path import resolve_config_path
 from src.cli.validate_grpo_runtime import validate_vbvr_evalkit_contract
 from src.eval.vbvr_runtime import validate_vbvr_scorer_runtime
 from src.trainer import DanceGRPOTrainer, RLConfig
@@ -34,7 +34,7 @@ def main():
     # Build config: defaults -> YAML -> CLI
     cfg_dict = {}
     if args.config:
-        cfg_dict = yaml.safe_load(Path(args.config).read_text()) or {}
+        cfg_dict = yaml.safe_load(resolve_config_path(args.config).read_text(encoding="utf-8")) or {}
     for name in RLConfig.model_fields:
         v = getattr(args, name, None)
         if v is not None:

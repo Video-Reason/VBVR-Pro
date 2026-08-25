@@ -243,8 +243,11 @@ Use `python example.py --list-models` for the full list of supported model types
 
 ## Training
 
-For reproducible SFT data preparation and multi-node training of all model families,
-see [`TRAINING.md`](TRAINING.md).
+For reproducible data preparation and distributed training, use the guide for
+the intended stage:
+
+- supervised fine-tuning: [`TRAINING.md`](TRAINING.md);
+- reinforcement learning: [`RL_TRAINING.md`](RL_TRAINING.md).
 
 ## Development
 

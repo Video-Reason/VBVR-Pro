@@ -12,6 +12,10 @@
 # default is DP1 x TP<nproc>; operators may override that topology through the
 # documented WAN_TRAINER_VLM_* environment variables.
 
+# Preserve the outer checkout as the config-argument base before this wrapper
+# changes into rl_training and delegates to grpo_multinode.fish.
+set -q WAN_TRAINER_CALLER_CWD; or set -gx WAN_TRAINER_CALLER_CWD (realpath .)
+
 set -l nproc 8
 set -l expect_nproc false
 for arg in $argv

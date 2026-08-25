@@ -218,3 +218,8 @@ data/diffsynth_mix/
 
 # Scheduler/product support bundles are large local diagnostics, not source.
 product.lepton-*.tar.gz
+
+# The generic Python-template `lib/` rule must not hide the shared launcher
+# bootstrap used by every checked-in training entry point.
+!scripts/lib/
+!scripts/lib/env.fish

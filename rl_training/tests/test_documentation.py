@@ -143,3 +143,12 @@ def test_training_launcher_surface_is_minimal():
     }
     actual = {path.name for path in (_REPO_ROOT / "scripts/train").iterdir()}
     assert actual == expected
+
+
+def test_training_launchers_ship_their_shared_environment_bootstrap():
+    bootstrap = _REPO_ROOT / "scripts/lib/env.fish"
+    assert bootstrap.is_file()
+
+    for launcher_name in ("grpo_multinode.fish", "sft_multinode.fish"):
+        launcher = (_REPO_ROOT / "scripts/train" / launcher_name).read_text(encoding="utf-8")
+        assert "../lib/env.fish" in launcher

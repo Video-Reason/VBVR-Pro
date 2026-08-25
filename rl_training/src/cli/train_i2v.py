@@ -6,10 +6,10 @@ Usage:
 """
 
 import argparse
-from pathlib import Path
 
 import yaml
 
+from src.cli.config_path import resolve_config_path
 from src.trainer import I2VTrainer, SFTConfig
 
 
@@ -31,7 +31,7 @@ def main():
     # Build config: defaults -> JSON -> CLI
     cfg_dict = {}
     if args.config:
-        cfg_dict = yaml.safe_load(Path(args.config).read_text()) or {}
+        cfg_dict = yaml.safe_load(resolve_config_path(args.config).read_text(encoding="utf-8")) or {}
     for name in SFTConfig.model_fields:
         v = getattr(args, name, None)
         if v is not None:

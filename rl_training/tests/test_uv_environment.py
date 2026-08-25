@@ -16,7 +16,7 @@ def test_uv_is_the_only_project_environment_workflow():
         "torch": {"index": "pytorch-cu126"},
         "torchvision": {"index": "pytorch-cu126"},
     }
-    assert manifest["dependency-groups"]["dev"] == ["pytest>=9.1.1", "ruff==0.16.3"]
+    assert manifest["dependency-groups"]["dev"] == ["pytest>=9.1.1"]
     assert (_REPO_ROOT / "uv.lock").is_file()
     assert not (_REPO_ROOT / "pixi.lock").exists()
     assert (_REPO_ROOT / ".python-version").read_text(encoding="utf-8").strip() == "3.12"

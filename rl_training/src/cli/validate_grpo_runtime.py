@@ -11,6 +11,7 @@ from pathlib import Path
 
 import yaml
 
+from src.cli.config_path import resolve_config_path
 from src.eval.vbvr_run_evaluation_parallel import evalkit_source_sha256
 from src.eval.vbvr_runtime import validate_vbvr_scorer_runtime
 
@@ -34,9 +35,10 @@ def _runtime_selection(argv: Sequence[str] | None = None) -> _RuntimeSelection:
 
     config: dict = {}
     if args.config:
-        config = yaml.safe_load(Path(args.config).read_text()) or {}
+        config_path = resolve_config_path(args.config)
+        config = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
         if not isinstance(config, dict):
-            raise TypeError(f"GRPO config must contain a mapping: {args.config}")
+            raise TypeError(f"GRPO config must contain a mapping: {config_path}")
     return _RuntimeSelection(
         reward=args.grpo_reward_fn or config.get("grpo_reward_fn"),
         attention=args.attention_backend or config.get("attention_backend"),
