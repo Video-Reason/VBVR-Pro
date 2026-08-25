@@ -1,9 +1,11 @@
 # VBVR-Pro RL training
 
-This guide provides the public VBVR-Pro reinforcement-learning recipes backed
-by [`rl_training`](rl_training/). Prepare its isolated environment, model
+The implementation in [`rl_training`](rl_training/) is based on the standalone
+[`pufanyi/vbvr-rl`](https://github.com/pufanyi/vbvr-rl) codebase. This guide
+adapts its public VBVR-Pro reinforcement-learning recipes for use from the
+VBVR-Pro repository root. Prepare the isolated environment, model
 initialization, public RL data, and reward runtime before starting a distributed
-job. Run every command below from the VBVR-Pro repository root.
+job. Run every command below from the repository root.
 
 | Model | Reward and sampler | Resolution and frames | Reference topology | Config | Launcher |
 | --- | --- | --- | --- | --- | --- |

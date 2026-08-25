@@ -1,5 +1,8 @@
 # VBVR-RL
 
+The `rl_training/` integration in VBVR-Pro is based on the standalone
+[`pufanyi/vbvr-rl`](https://github.com/pufanyi/vbvr-rl) codebase.
+
 VBVR-RL is a research training and evaluation stack for reinforcement learning
 of Wan2.2 image-to-video models on VBVR-Pro. It includes supervised
 fine-tuning, DanceGRPO-style replay, Flow-CPS sampling, distributed full
