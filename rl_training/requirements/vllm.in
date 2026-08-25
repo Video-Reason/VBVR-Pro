@@ -1,0 +1,5 @@
+# Isolated Qwen judge service. This stack is intentionally separate from the
+# training project because its NumPy and serving-runtime constraints differ.
+numpy==2.3.5
+ray[cgraph]
+vllm==0.26.0

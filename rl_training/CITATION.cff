@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use VBVR-RL in your research, please cite this software release."
+title: "VBVR-RL"
+type: software
+authors:
+  - family-names: "Pu"
+    given-names: "Fanyi"
+    email: "FPU001@e.ntu.edu.sg"
+repository-code: "https://github.com/pufanyi/vbvr-rl"
+license: MIT
+version: 0.1.0
+date-released: 2026-08-19

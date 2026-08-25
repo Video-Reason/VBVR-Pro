@@ -52,6 +52,20 @@ MODEL_SPECS = {
     "wan2.2-ti2v-5b": ModelSpec(
         "VBVR-Pro Wan2.2-TI2V-5B", "Diffusers", False, "video", 50
     ),
+    "wan2.2-ti2v-5b-qwen-judge-rl": ModelSpec(
+        "VBVR-Pro Wan2.2-TI2V-5B Qwen-Judge-RL",
+        "Diffusers",
+        True,
+        "video",
+        30,
+    ),
+    "wan2.2-ti2v-5b-rule-rl": ModelSpec(
+        "VBVR-Pro Wan2.2-TI2V-5B Rule-RL",
+        "Diffusers",
+        True,
+        "video",
+        30,
+    ),
     "flux2-diffsynth": ModelSpec(
         "VBVR-Pro FLUX.2-dev DiffSynth LoRA", "DiffSynth", True, "image", 50
     ),
@@ -95,6 +109,11 @@ MODEL_SPECS = {
 
 # Check longer/more-specific names first.
 MODEL_NAME_MARKERS = (
+    (
+        "wan2.2-ti2v-5b-qwen-judge-rl",
+        "wan2.2-ti2v-5b-qwen-judge-rl",
+    ),
+    ("wan2.2-ti2v-5b-rule-rl", "wan2.2-ti2v-5b-rule-rl"),
     ("wan2.2-i2v-a14b-diffsynth", "wan2.2-i2v-a14b-diffsynth"),
     ("wan2.2-ti2v-5b-diffsynth", "wan2.2-ti2v-5b-diffsynth"),
     ("wan2.1-i2v-14b-diffsynth", "wan2.1-i2v-14b-diffsynth"),
@@ -110,6 +129,19 @@ MODEL_NAME_MARKERS = (
     ("flux2-dev", "flux2"),
     ("ltx2.3", "ltx2.3"),
     ("bagel", "bagel"),
+)
+
+WAN_RL_MODEL_TYPES = {
+    "wan2.2-ti2v-5b-qwen-judge-rl",
+    "wan2.2-ti2v-5b-rule-rl",
+}
+WAN_RL_PAPER_SAMPLERS = (
+    "cps-0.1",
+    "cps-0.3",
+    "cps-0.7",
+    "cps-0.9",
+    "euler",
+    "unipc",
 )
 
 
@@ -180,7 +212,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--seed",
         type=int,
-        help="Random seed (defaults to 1 for BAGEL and 42 for all other models).",
+        help=(
+            "Random seed (defaults to 1 for BAGEL, 0 for Wan2.2 TI2V RL, "
+            "and 42 for all other models)."
+        ),
     )
     parser.add_argument("--steps", type=int, help="Number of denoising steps.")
     parser.add_argument(
@@ -217,6 +252,31 @@ def build_parser() -> argparse.ArgumentParser:
         help="Video frame count.",
     )
     parser.add_argument("--fps", type=int, help="Output video frame rate.")
+    parser.add_argument(
+        "--sampler",
+        choices=[*WAN_RL_PAPER_SAMPLERS, "cps"],
+        help=(
+            "Sampler for the Wan2.2 TI2V RL checkpoints. Use 'cps' with "
+            "--cps_eta for a custom Flow-CPS coefficient."
+        ),
+    )
+    parser.add_argument(
+        "--cps_eta",
+        "--cps-eta",
+        dest="cps_eta",
+        type=float,
+        help="Custom Flow-CPS coefficient in [0, 1]; implies --sampler cps.",
+    )
+    parser.add_argument(
+        "--cps_seed",
+        "--cps-seed",
+        dest="cps_seed",
+        type=int,
+        help=(
+            "Optional independent seed for Flow-CPS transition noise. The main "
+            "--seed stream is reused when omitted."
+        ),
+    )
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument(
         "--cpu_offload",
@@ -368,6 +428,8 @@ def prepare_args(parser: argparse.ArgumentParser, args: argparse.Namespace) -> a
         parser.error("--max_attempts must be positive")
     if args.num_frames is not None and args.num_frames <= 0:
         parser.error("--num_frames must be positive")
+    if args.fps is not None and args.fps <= 0:
+        parser.error("--fps must be positive")
     if args.steps is not None and args.steps <= 0:
         parser.error("--steps must be positive")
     if args.width is not None and args.width <= 0:
@@ -375,9 +437,33 @@ def prepare_args(parser: argparse.ArgumentParser, args: argparse.Namespace) -> a
     if args.height is not None and args.height <= 0:
         parser.error("--height must be positive")
 
+    is_wan_rl = args.model_type in WAN_RL_MODEL_TYPES
+    if not is_wan_rl and any(
+        value is not None
+        for value in (args.sampler, args.cps_eta, args.cps_seed)
+    ):
+        parser.error(
+            "--sampler, --cps_eta, and --cps_seed are supported only by the "
+            "Wan2.2 TI2V RL checkpoints"
+        )
+    if is_wan_rl:
+        if args.cps_eta is not None:
+            if not 0.0 <= args.cps_eta <= 1.0:
+                parser.error("--cps_eta must be in [0, 1]")
+            if args.sampler is None:
+                args.sampler = "cps"
+            elif args.sampler != "cps":
+                parser.error("--cps_eta can be used only with --sampler cps")
+        args.sampler = args.sampler or "cps-0.7"
+        if args.cps_seed is not None and not args.sampler.startswith("cps"):
+            parser.error("--cps_seed can be used only with a Flow-CPS sampler")
+
     args.steps = args.steps or spec.default_steps
     if args.seed is None:
-        args.seed = 1 if args.model_type == "bagel" else 42
+        if is_wan_rl:
+            args.seed = 0
+        else:
+            args.seed = 1 if args.model_type == "bagel" else 42
     if args.think is None:
         args.think = args.model_type == "thinkmorph"
     if args.num_images is None and args.model_type == "sensenova-u1":
@@ -973,6 +1059,66 @@ def run_wan_diffusers(args: argparse.Namespace) -> None:
     print(f"Saved: {args.output}")
 
 
+def run_wan_rl_diffusers(args: argparse.Namespace) -> None:
+    """Run the custom six-sampler pipeline bundled with the Wan TI2V RL models."""
+    import torch
+    from diffusers import AutoencoderKLWan, DiffusionPipeline
+    from diffusers.utils import export_to_video
+
+    require_cuda(torch, args.device)
+    set_seed(torch, args.seed)
+    validate_local_diffusers_repository(args.model_path)
+
+    local_model_path = Path(args.model_path).expanduser()
+    if local_model_path.is_dir() and not (local_model_path / "pipeline.py").is_file():
+        raise FileNotFoundError(
+            "The Wan2.2 TI2V RL checkpoint requires its bundled pipeline.py; "
+            f"the file is missing from {local_model_path}."
+        )
+    vae = AutoencoderKLWan.from_pretrained(
+        args.model_path,
+        subfolder="vae",
+        torch_dtype=torch.float32,
+    )
+    pipe = DiffusionPipeline.from_pretrained(
+        args.model_path,
+        custom_pipeline="pipeline",
+        trust_remote_code=True,
+        vae=vae,
+        torch_dtype=torch.bfloat16,
+    )
+    place_diffusers_pipeline(pipe, args)
+
+    width, height = args.width or 512, args.height or 512
+    generator = torch.Generator(device=args.device).manual_seed(args.seed)
+    kwargs: dict[str, Any] = {
+        "image": open_images(args.image_paths)[0],
+        "prompt": args.prompt,
+        "height": height,
+        "width": width,
+        "num_frames": args.num_frames or 81,
+        "num_inference_steps": args.steps,
+        "guidance_scale": (
+            args.guidance_scale if args.guidance_scale is not None else 1.0
+        ),
+        "sampler": args.sampler,
+        "generator": generator,
+    }
+    if args.negative_prompt is not None:
+        kwargs["negative_prompt"] = args.negative_prompt
+    if args.cps_eta is not None:
+        kwargs["cps_eta"] = args.cps_eta
+    if args.cps_seed is not None:
+        kwargs["cps_generator"] = torch.Generator(device=args.device).manual_seed(
+            args.cps_seed
+        )
+
+    frames = pipe(**kwargs).frames[0]
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    export_to_video(frames, str(args.output), fps=args.fps or 16)
+    print(f"Saved: {args.output}")
+
+
 def use_diffsynth(args: argparse.Namespace) -> None:
     prepend_python_path(args.vbvr_pro_models_dir / "DiffSynth-Studio")
 
@@ -1329,6 +1475,8 @@ RUNNERS = {
     "wan2.1-i2v-14b": run_wan_diffusers,
     "wan2.2-i2v-a14b": run_wan_diffusers,
     "wan2.2-ti2v-5b": run_wan_diffusers,
+    "wan2.2-ti2v-5b-qwen-judge-rl": run_wan_rl_diffusers,
+    "wan2.2-ti2v-5b-rule-rl": run_wan_rl_diffusers,
     "flux2-diffsynth": run_flux2_lora,
     "qwen-image-edit-diffsynth": run_qwen_image_edit_lora,
     "ltx2.3-diffsynth": run_ltx_diffsynth,

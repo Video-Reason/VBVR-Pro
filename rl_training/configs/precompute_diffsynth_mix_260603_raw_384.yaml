@@ -1,0 +1,8 @@
+trainer: i2v
+model_path: storage/models/Wan2.2-I2V-A14B-Diffusers
+dataset_json: data/diffsynth_mix/260603_mix_vbvr_vr_view_i2v.json
+
+num_frames: 81
+height: 384
+width: 384
+fps: 16
