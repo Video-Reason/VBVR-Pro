@@ -2,10 +2,10 @@ __pycache__/
 *.py[cod]
 .ruff_cache/
 .venv/
-offload/
-smoke_test_outputs/
+/offload/
+/smoke_test_outputs/
 
 # Default locations used by the public download and training instructions.
-data/
-models/
-outputs/
+/data/
+/models/
+/outputs/

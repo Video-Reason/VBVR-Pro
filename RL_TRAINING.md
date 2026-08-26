@@ -245,6 +245,14 @@ fish rl_training/scripts/train/grpo_multinode.fish --nproc 8 \
 
 ## 4. Recipe-specific training instructions
 
+> **Pipeline highlight — one-step-delayed execution.** The production 5B
+> recipes enable `grpo_delayed_replay`: reward evaluation for rollout *n* can
+> overlap the next rollout and the preceding training update, then train *n*
+> consumes the correctly paired one-slot-older trajectory. Pending work is
+> flushed at checkpoint and training boundaries.
+
+![Synchronous and one-step-delayed rollout, reward, and training pipelines](rl_training/docs/imgs/image.png)
+
 ### 4.1 TI2V-5B rule reward with Flow-CPS
 
 [`train_rl_5b_cps.yaml`](rl_training/configs/train_rl_5b_cps.yaml) is the main

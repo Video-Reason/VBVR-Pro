@@ -15,8 +15,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -204,22 +204,17 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-storage/
+/storage/
 
-wandb/
+/wandb/
 
-eval_out/
+/eval_out/
 
-logs/
+/logs/
 
-tmp/
+/tmp/
 
-data/diffsynth_mix/
+/data/
 
 # Scheduler/product support bundles are large local diagnostics, not source.
 product.lepton-*.tar.gz
-
-# The generic Python-template `lib/` rule must not hide the shared launcher
-# bootstrap used by every checked-in training entry point.
-!scripts/lib/
-!scripts/lib/env.fish
