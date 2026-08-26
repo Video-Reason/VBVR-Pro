@@ -364,10 +364,9 @@ class RLConfig(TrainConfig):
     maze_line_reward_goal_cells: float = 1.0
 
     # ------------------------------------------------------------------
-    # Maze tracker/eval reward (grpo_reward_fn: "maze_tracker")
+    # Maze tracker reward (grpo_reward_fn: "maze_tracker")
     # ------------------------------------------------------------------
-    # Mirrors src.eval.maze_tracker_score overall:
-    # 0.35*traj + 0.25*on_path + 0.25*goal + 0.15*progress.
+    # Overall: 0.35*traj + 0.25*on_path + 0.25*goal + 0.15*progress.
     maze_tracker_reward_num_frames: int = 21
     maze_tracker_reward_search_radius: int = 96
     maze_tracker_reward_color_slack: float = 28.0

@@ -271,7 +271,7 @@ The release intentionally ships one SFT config and four RL configs:
 | `train_rl_a14b_rule.yaml` | A14B, 256x256x161, TP2 plus FSDP4, rule reward |
 
 `train_sft_vbvr_5e-6.yaml` expects an external 800,000-sample latent
-WebDataset at `data/vbvr/latents/sft`; it cannot consume the public raw RL
+WebDataset at `storage/datasets/vbvr_sft`; it cannot consume the public raw RL
 archives directly. Its expert-parallel topology requires FSDP, both A14B
 experts, and an even world size.
 

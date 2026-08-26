@@ -14,11 +14,9 @@ job. Run every command below from the repository root.
 | Wan2.2-TI2V-5B | Qwen3.6-27B VLM, Flow-CPS eta 0.7 | 512 x 512 x 81 | 4, 8, or 16 nodes x 8 GPUs | `train_rl_5b_vlm.yaml` | `grpo_vlm_eval_multinode.fish` |
 | Wan2.2-I2V-A14B | VBVR rule, Flow-CPS with group-wise eta sampling | 256 x 256 x 161 | 1 node x 8 GPUs (TP2 x FSDP4) | `train_rl_a14b_rule.yaml` | `grpo_multinode.fish` |
 
-These are topology-specific production references, not small examples. Use the
-bounded one-GPU update smoke in section 2.4 before allocating a production
-job. The four YAML files are the complete released RL config surface; the smoke
-derives temporary overrides from the 5B Flow-CPS config rather than adding a
-fifth config.
+These are topology-specific production references, not small examples. Review
+the complete model, data, reward, and distributed contracts before launch. The
+four YAML files are the complete released RL config surface.
 
 ## 1. Environment preparation
 
@@ -58,12 +56,9 @@ uv --directory rl_training run --locked python -m src.cli.prefetch_attention_ker
 
 The launcher uses that location by default. Set
 `WAN_TRAINER_KERNELS_CACHE=/shared/path` when all nodes should use another
-pre-populated cache. If the cluster image omits Python 3.12 headers and cannot
-be changed, bootstrap the ignored shared uv toolchain once:
-
-```bash
-fish rl_training/scripts/dev/bootstrap_triton_python_headers.fish
-```
+pre-populated cache. The cluster image must provide Python 3.12 development
+headers, or `WAN_TRAINER_PYTHON_INCLUDE`/`CPATH` must point to compatible
+headers before launch.
 
 ## 2. Download and prepare models, data, and rewards
 
@@ -84,7 +79,7 @@ Paths inside the released YAML files are relative to `rl_training`, so
 
 ### 2.1 Model initialization
 
-Download the official TI2V-5B Diffusers model used by the bounded smoke:
+Download the official TI2V-5B Diffusers base when needed:
 
 ```bash
 uv --directory rl_training run --locked hf download \
@@ -93,17 +88,10 @@ uv --directory rl_training run --locked hf download \
 ```
 
 The three production 5B configs do **not** initialize from this clean base.
-They expect a complete Diffusers pipeline with the released DiffSynth
-step-35500 SFT LoRA already merged at:
-
-```text
-rl_training/storage/models/diffsynth_converted_5b/
-  wan2.2-TI2V-5B_260715_vbvr_pro_step-35500/
-```
-
-Place the matching converted artifact there, or deliberately update
-`model_path` to a compatible complete Diffusers directory and treat it as a
-new experiment. A clean TI2V-5B base does not reproduce the production 5B
+They expect a complete Diffusers pipeline containing the released DiffSynth
+model after SFT. Point `model_path` at that local pipeline directory, or use
+another compatible complete Diffusers directory and treat it as a new
+experiment. A clean TI2V-5B base does not reproduce the production 5B
 initialization.
 
 Download the A14B Diffusers base for the A14B recipe:
@@ -115,8 +103,8 @@ uv --directory rl_training run --locked hf download \
 ```
 
 The A14B config also initializes from the external SFT checkpoint named by
-`resume_from` (`storage/checkpoints/sft_diffsynth_mix_260603/checkpoint-epoch1`)
-with `reset_dataloader: true`. Stage the matching checkpoint or intentionally
+`resume_from` with `reset_dataloader: true`. The checked-in path is a stable
+alias: point it at the selected compatible SFT checkpoint, or intentionally
 change the initialization contract before launch. Review the model licenses
 and access requirements before downloading or redistributing any weights.
 
@@ -192,7 +180,15 @@ The VLM recipe instead uses a separately locked vLLM environment and pinned
 Qwen3.6-27B snapshot. Prepare both on every VLM training node:
 
 ```bash
-fish rl_training/scripts/dev/setup_host_vllm.fish
+uv venv --python 3.12 rl_training/storage/host_vllm/.venv
+uv pip sync \
+  --no-config \
+  --python rl_training/storage/host_vllm/.venv/bin/python \
+  --link-mode copy \
+  --require-hashes \
+  --strict \
+  --torch-backend cu126 \
+  rl_training/requirements/vllm.lock
 
 rl_training/storage/host_vllm/.venv/bin/hf download Qwen/Qwen3.6-27B \
   --revision 6a9e13bd6fc8f0983b9b99948120bc37f49c13e9 \
@@ -201,39 +197,6 @@ rl_training/storage/host_vllm/.venv/bin/hf download Qwen/Qwen3.6-27B \
 
 See the [Qwen VLM reward guide](rl_training/docs/vlm_judge_reward.md) before
 changing the judge model, prompt contract, serving runtime, or media sampling.
-
-### 2.4 One-GPU parameter-update smoke
-
-Create four deterministic local samples:
-
-```bash
-uv --directory rl_training run --locked python scripts/dev/create_i2v_smoke_dataset.py \
-  --output-dir storage/smoke/i2v_512x512x81 \
-  --samples 4 \
-  --frames 81 \
-  --height 512 \
-  --width 512 \
-  --fps 16
-```
-
-Run one bounded LoRA/Flow-CPS step and require trainable tensors to change:
-
-```bash
-uv --directory rl_training run --locked torchrun \
-  --standalone \
-  --nproc_per_node=1 \
-  -m scripts.dev.validate_grpo_parameter_update \
-  --config configs/train_rl_5b_cps.yaml \
-  --one-gpu-smoke \
-  --model-path storage/models/Wan2.2-TI2V-5B-Diffusers \
-  --dataset-json storage/smoke/i2v_512x512x81/dataset.json \
-  --output-dir storage/smoke/checkpoints/rl_5b_update
-```
-
-This smoke uses the model-internal `neg_loss` reward and does not validate the
-external evaluator or production distributed topology. It covers raw loading,
-encoding, grouped rollout, replay, backward, optimizer update, and a nonzero
-parameter delta.
 
 ## 3. Distributed launch settings
 

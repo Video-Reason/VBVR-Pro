@@ -57,17 +57,24 @@ so semantic validation remains mandatory.
 
 ## Isolated vLLM Environment
 
-Create the ignored service environment:
+Create the ignored service environment from the checked-in lock:
 
-```fish
-fish scripts/dev/setup_host_vllm.fish
+```bash
+uv venv --python 3.12 storage/host_vllm/.venv
+uv pip sync \
+  --no-config \
+  --python storage/host_vllm/.venv/bin/python \
+  --link-mode copy \
+  --require-hashes \
+  --strict \
+  --torch-backend cu126 \
+  requirements/vllm.lock
 ```
 
 The service uses `storage/host_vllm/.venv`, which explicitly excludes the
 training stack. Its vLLM, Ray, NumPy, Torch, and CUDA-wheel contract is recorded
-in `requirements/vllm.in` and the compiled `requirements/vllm.lock`; setup also
-writes an ignored `storage/host_vllm/requirements.freeze.txt` inspection
-snapshot. Regenerate the lock deliberately when updating this runtime:
+in `requirements/vllm.in` and the compiled `requirements/vllm.lock`. Regenerate
+the lock deliberately when updating this runtime:
 
 ```bash
 uv pip compile --no-config requirements/vllm.in \
@@ -80,16 +87,7 @@ uv pip compile --no-config requirements/vllm.in \
 
 ## Download the Pinned Model
 
-After creating the isolated environment:
-
-```fish
-fish scripts/download/qwen36_27b_hf_mirror.fish
-```
-
-The helper downloads the exact recorded revision into
-`storage/models/Qwen3.6-27B` and asks the Hugging Face CLI to verify all remote
-and LFS files. To use the standard Hugging Face endpoint instead, run the
-isolated `hf` command directly:
+After creating the isolated environment, download the recorded revision:
 
 ```bash
 storage/host_vllm/.venv/bin/hf download Qwen/Qwen3.6-27B \

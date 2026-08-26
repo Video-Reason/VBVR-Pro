@@ -597,17 +597,8 @@ def _remap_lora_to_lora(weights: dict[str, torch.Tensor], model_keys: dict[str, 
 def _lora_to_plain_error() -> ValueError:
     return ValueError(
         "Cannot init a full-FT model from a LoRA-trained checkpoint — the LoRA "
-        "delta must be merged into base weights first. Recipe:\n"
-        "  1. .venv/bin/python -m src.cli.convert_dcp_to_lora \\\n"
-        "         --config <original_train_config.yaml> \\\n"
-        "         --checkpoint <ckpt_path> \\\n"
-        "         --output <adapter_out>\n"
-        "  2. Use PEFT merge_and_unload to fold the adapter into base weights:\n"
-        "         from diffusers.models import WanTransformer3DModel\n"
-        "         from peft import PeftModel\n"
-        "         base = WanTransformer3DModel.from_pretrained('<orig>/transformer')\n"
-        "         merged = PeftModel.from_pretrained(base, '<adapter_out>/transformer').merge_and_unload()\n"
-        "         merged.save_pretrained('<merged_model>/transformer')\n"
-        "  3. Point cfg.model_path at <merged_model> and start a fresh run "
-        "     (no resume_from)."
+        "delta must be merged into base weights first. Convert the checkpoint "
+        "with src.cli.convert_dcp_to_diffusers and --merge_lora, point "
+        "cfg.model_path at the resulting pipeline, and start a fresh run "
+        "without resume_from."
     )

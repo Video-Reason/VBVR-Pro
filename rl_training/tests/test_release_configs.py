@@ -4,7 +4,6 @@ from pathlib import Path
 
 import yaml
 
-from scripts.dev.validate_grpo_parameter_update import _load_config
 from src.trainer import RLConfig, SFTConfig
 from src.trainer.dancegrpo_trainer import _shared_prompt_assignment, _shared_prompt_wave_ranges
 
@@ -24,7 +23,8 @@ def test_release_ships_only_the_selected_sft_config():
     values = yaml.safe_load(paths[0].read_text(encoding="utf-8"))
     config = SFTConfig(**values)
     assert config.learning_rate == 5.0e-6
-    assert config.latent_webdataset_dir == "data/vbvr/latents/sft"
+    assert config.latent_webdataset_dir == "storage/datasets/vbvr_sft"
+    assert config.output_dir == "storage/checkpoints/vbvr_pro_sft"
     assert config.dataset_size == 800_000
     assert config.fsdp
     assert config.expert_parallel
@@ -41,24 +41,6 @@ def test_release_ships_only_the_selected_rl_configs():
         found[path.name] = config.grpo_reward_fn
 
     assert found == _EXPECTED_RL_CONFIGS
-
-
-def test_one_gpu_smoke_is_derived_from_the_release_config():
-    config = _load_config(
-        _REPO_ROOT / "configs/train_rl_5b_cps.yaml",
-        one_gpu_smoke=True,
-        model_path=Path("storage/models/Wan2.2-TI2V-5B-Diffusers"),
-        dataset_json=Path("storage/smoke/i2v_512x512x81/dataset.json"),
-        output_dir=Path("storage/smoke/checkpoints/rl_5b_update"),
-    )
-
-    assert config.max_steps == 1
-    assert config.grpo_reward_fn == "neg_loss"
-    assert config.grpo_group_size == 2
-    assert config.lora_rank == 16
-    assert not config.fsdp
-    assert not config.hsdp
-    assert not config.torch_compile
 
 
 def test_5b_rule_references_are_a_paired_cps_sde_variant():
@@ -123,3 +105,7 @@ def test_a14b_reference_is_tp2_over_four_data_replicas():
     assert config.batch_size * 4 == 16
     assert config.fsdp
     assert not config.hsdp
+    assert config.output_dir == "storage/checkpoints/vbvr_pro_a14b_rule"
+    assert config.resume_from == "storage/checkpoints/vbvr_pro_sft/checkpoint"
+    assert config.vbvr_reward_evalkit_dir == "storage/evalkits/vbvr-evalkit"
+    assert config.vbvr_reward_tmp_dir == "storage/tmp/vbvr_pro_a14b_rule"

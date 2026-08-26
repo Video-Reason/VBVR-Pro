@@ -92,8 +92,6 @@ The remapper supports:
 
 `src.cli.convert_dcp_to_diffusers` loads a base pipeline, applies a DCP checkpoint, optionally merges LoRA, and saves a Diffusers-style model directory.[^convert-diffusers]
 
-`src.cli.convert_dcp_to_lora` extracts LoRA tensors and writes adapter folders from a DCP checkpoint.[^convert-lora]
-
 Example portable conversion:
 
 ```bash
@@ -122,5 +120,4 @@ and complete converted output tree.
 [^base-trainer]: [`src/trainer/base_trainer.py`](../src/trainer/base_trainer.py)
 [^wan-wrapper]: [`src/models/wan_i2v.py`](../src/models/wan_i2v.py)
 [^convert-diffusers]: [`src/cli/convert_dcp_to_diffusers.py`](../src/cli/convert_dcp_to_diffusers.py)
-[^convert-lora]: [`src/cli/convert_dcp_to_lora.py`](../src/cli/convert_dcp_to_lora.py)
 [^optimizer]: [`src/trainer/optimizer.py`](../src/trainer/optimizer.py)

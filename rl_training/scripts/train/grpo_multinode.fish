@@ -130,7 +130,6 @@ if test "$skip_triton_preflight" != "1"
     or begin
         echo "ERROR: Triton preflight failed on node $RANK before torchrun." >&2
         echo "Install matching Python development headers or set WAN_TRAINER_PYTHON_INCLUDE/CPATH." >&2
-        echo "For the shared project toolchain, run fish scripts/dev/bootstrap_triton_python_headers.fish once." >&2
         exit 1
     end
 end

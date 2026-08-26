@@ -51,22 +51,6 @@ The one-element `videos` list is retained as a batch-interface compatibility
 detail. The common `collate` stacks its target tensor along the batch
 dimension.[^trainer-utils]
 
-## Local Raw Smoke Fixture
-
-Use the deterministic fixture generator when production media paths are not
-mounted but the complete raw data path still needs validation:
-
-```bash
-.venv/bin/python scripts/dev/create_i2v_smoke_dataset.py \
-  --output-dir storage/smoke/i2v_512x512x81 \
-  --samples 4 --frames 81 --height 512 --width 512 --fps 16
-```
-
-It writes H.264 MP4s, first-frame PNGs, `samples.parquet`, and `dataset.json`
-under the ignored `storage/` tree. Pass the resulting descriptor to the
-single-GPU profile derived from `configs/train_rl_5b_cps.yaml` by
-`scripts/dev/validate_grpo_parameter_update.py`.[^smoke-data]
-
 ## Latent WebDataset
 
 Latent training uses `VBVRLatentDataset`, an `IterableDataset` over `shard-*.tar` files.[^latent-dataset] Each tar sample contains:
@@ -109,10 +93,15 @@ The precompute script writes `dataset_info.json` with recommended `latent_webdat
 
 `src.precompute.maze_webdataset` generates synthetic mazes, renders ball-trajectory videos, encodes video latents and first-frame conditions with the Wan VAE, encodes prompts with UMT5, and writes WebDataset shards with extra `maze_*` reward tensors.[^maze-webdataset]
 
-The fish launcher defaults to:
+Launch the builder directly through the locked environment:
 
-```fish
-fish scripts/precompute/maze_webdataset.fish --num_samples 20000
+```bash
+.venv/bin/torchrun --nproc_per_node=8 -m src.precompute.maze_webdataset \
+  --output_dir storage/latents/maze/webdataset \
+  --sft_output_dir storage/latents/maze/webdataset/sft \
+  --rl_output_dir storage/latents/maze/webdataset/rl \
+  --model_path storage/models/Wan2.2-I2V-A14B-Diffusers \
+  --num_samples 20000
 ```
 
 Important generated tensors:
@@ -129,7 +118,7 @@ The VBVR precompute code has separate VAE and text paths:
 
 - `src.precompute.vbvr_vae_latents` writes one safetensors file per sample with `latents` and `condition`.[^vbvr-vae]
 - `src.precompute.vbvr_prompt_embeds` writes one safetensors file per sample with `prompt_embeds`.[^vbvr-t5]
-- packaging/shuffle helpers under `scripts/data/` and `src.precompute.build_webdataset` are used to assemble final tar shards.[^scripts-readme]
+- `src.precompute.build_webdataset` assembles final tar shards.
 
 ## Published VBVR-Pro RL Snapshot
 
@@ -200,7 +189,6 @@ The current design makes GPU training fast by moving expensive VAE/T5 work offli
 
 [^i2v-dataset]: [`src/data/i2v_dataset.py`](../src/data/i2v_dataset.py)
 [^trainer-utils]: [`src/trainer/utils.py`](../src/trainer/utils.py)
-[^smoke-data]: [`scripts/dev/create_i2v_smoke_dataset.py`](../scripts/dev/create_i2v_smoke_dataset.py)
 [^latent-dataset]: [`src/data/vbvr_latent_dataset.py`](../src/data/vbvr_latent_dataset.py)
 [^maze-reward]: [`src/trainer/rewards/maze.py`](../src/trainer/rewards/maze.py)
 [^base-trainer]: [`src/trainer/base_trainer.py`](../src/trainer/base_trainer.py)
@@ -208,4 +196,3 @@ The current design makes GPU training fast by moving expensive VAE/T5 work offli
 [^maze-webdataset]: [`src/precompute/maze_webdataset.py`](../src/precompute/maze_webdataset.py)
 [^vbvr-vae]: [`src/precompute/vbvr_vae_latents.py`](../src/precompute/vbvr_vae_latents.py)
 [^vbvr-t5]: [`src/precompute/vbvr_prompt_embeds.py`](../src/precompute/vbvr_prompt_embeds.py)
-[^scripts-readme]: [`scripts/README.md`](../scripts/README.md)

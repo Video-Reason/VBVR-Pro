@@ -1,4 +1,4 @@
-"""Maze tracker reward matching src.eval.maze_tracker_score overall."""
+"""Pixel-space maze tracker reward for training."""
 
 from __future__ import annotations
 
@@ -40,7 +40,7 @@ def _track_color_object(
     search_radius: int,
     color_slack: float,
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    """Torch port of src.eval.maze_tracker_score._track_ball."""
+    """Track a colored object through decoded video frames."""
     B, _, T, H, W = pixel_video.shape
     positions = pixel_video.new_empty((B, T, 2))
     confidences = pixel_video.new_empty((B, T))
@@ -110,7 +110,7 @@ def _path_progress_score(
 
 @register_reward("maze_tracker")
 class MazeTrackerReward(BaseReward):
-    """Pixel-space maze reward using the same overall formula as maze_tracker_score.py."""
+    """Score trajectory accuracy, path adherence, goal reach, and progress."""
 
     requires_vae: ClassVar[bool] = True
 

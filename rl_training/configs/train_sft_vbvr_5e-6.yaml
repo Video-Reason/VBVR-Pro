@@ -1,8 +1,8 @@
 trainer: i2v
 model_path: storage/models/Wan2.2-I2V-A14B-Diffusers
-latent_webdataset_dir: data/vbvr/latents/sft
+latent_webdataset_dir: storage/datasets/vbvr_sft
 dataset_size: 800000
-output_dir: storage/checkpoints/sft_vbvr_5e-6
+output_dir: storage/checkpoints/vbvr_pro_sft
 
 batch_size: 12
 gradient_accumulation_steps: 1
@@ -22,4 +22,4 @@ transformer_load_dtype: float32
 expert_parallel: true
 train_experts: both
 
-wandb_project: wan-sft-vbvr
+wandb_project: vbvr-pro-sft

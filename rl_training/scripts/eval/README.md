@@ -9,8 +9,6 @@ workflow. The evaluator itself remains an external dependency.
 | Directory | Purpose |
 | --- | --- |
 | `vbvr_pro/` | Stable VBVR-Pro run, sampler-sweep, summary, and optional VLM-judge launchers |
-| `maze/` | Synthetic maze evaluation utilities |
-| `lmms/` | Optional lmms-eval/FastVideo integration |
 
 ## One VBVR-Pro Cell
 

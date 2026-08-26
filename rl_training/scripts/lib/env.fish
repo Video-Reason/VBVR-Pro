@@ -76,5 +76,4 @@ if test -n "$wan_python_header_include"
 else
     echo "[warning] Python.h for Python $wan_python_abi was not found; torch.compile/Triton will fail." >&2
     echo "[warning] Install python$wan_python_abi-dev or export WAN_TRAINER_PYTHON_INCLUDE/CPATH before launch." >&2
-    echo "[warning] On a shared runtime-only cluster, run fish scripts/dev/bootstrap_triton_python_headers.fish once." >&2
 end

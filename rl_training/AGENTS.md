@@ -41,9 +41,8 @@
 - Keep the checked-in DanceGRPO surface to exactly four production references:
   `configs/train_rl_5b_cps.yaml`, `configs/train_rl_5b_sde.yaml`,
   `configs/train_rl_5b_vlm.yaml`, and `configs/train_rl_a14b_rule.yaml`. The
-  first two are the paired TI2V-5B rule-reward Flow-CPS/RF-SDE references. Derive
-  bounded smoke parameters in the validator instead of adding
-  experiment-specific RL YAMLs.
+  first two are the paired TI2V-5B rule-reward Flow-CPS/RF-SDE references. Do
+  not add experiment-specific RL YAMLs.
 - Keep `configs/train_sft_vbvr_5e-6.yaml` as the only checked-in
   `train_sft_*.yaml` reference. Raw precompute descriptors may remain under a
   `precompute_*.yaml` name and are not additional SFT launch configs.
@@ -51,6 +50,10 @@
   `grpo_multinode.fish`, and `grpo_vlm_eval_multinode.fish`. They serve local
   and multi-node runs; express topology- or experiment-specific choices in
   reviewed configs or explicit overrides instead of adding wrapper scripts.
+- Keep the checked-in script and CLI surface limited to training, evaluation,
+  and their direct runtime dependencies. Do not restore standalone developer,
+  download, inference, precompute, plotting, sampling, or conversion-wrapper
+  entrypoints.
 - `third_party/VBVR-EvalKit` is intentionally absent. The supported public
   rule-evaluation path is `scripts/eval/vbvr_pro/` plus helpers in `src/eval/`.
   Do not restore a vendored or implicit evaluator fallback.
@@ -77,10 +80,9 @@
   opencv-python-headless==4.13.0.92`, then rerun
   `.venv/bin/python -m src.eval.vbvr_runtime`.
 - Fresh Triton/Inductor caches require a host C compiler and matching Python
-  headers. Prefer system Python 3.12 development headers;
-  `scripts/dev/bootstrap_triton_python_headers.fish` can create an ignored uv
-  toolchain fallback. Multi-machine GRPO preflights Triton's driver on every
-  machine before loading the model.
+  headers. Prefer system Python 3.12 development headers or configure
+  `WAN_TRAINER_PYTHON_INCLUDE`/`CPATH`. Multi-machine GRPO preflights Triton's
+  driver on every machine before loading the model.
 - The optional Qwen judge uses an isolated uv-managed environment beneath
   `storage/host_vllm`, resolved by `requirements/vllm.lock`; do not mix its
   dependency stack into the training `.venv` or introduce another manager.
@@ -105,12 +107,6 @@
   endings and collective hangs.
 - A14B and TI2V-5B use different condition/timestep formats. Recompute latents
   with the same base family and preprocessing contract used by training.
-- When raw production data is unavailable,
-  `scripts/dev/create_i2v_smoke_dataset.py` creates a deterministic ignored
-  H.264/PNG/Parquet fixture. Derive the matching bounded single-GPU profile
-  from `configs/train_rl_5b_cps.yaml` with
-  `scripts/dev/validate_grpo_parameter_update.py --one-gpu-smoke`; do not add a
-  separate checked-in smoke YAML.
 
 ## Public VBVR-Pro RL Snapshot
 

@@ -12,8 +12,9 @@ height: 256
 width: 256
 fps: 16
 
-output_dir: storage/checkpoints/dancegrpo_vbvr_pro_a14b_256x256x161_rule_cps_from_sft_diffsynth_mix_260603_bs16_lr_1e-5_full_tp2_fsdp4_liger_compile
-resume_from: storage/checkpoints/sft_diffsynth_mix_260603/checkpoint-epoch1
+output_dir: storage/checkpoints/vbvr_pro_a14b_rule
+# Point this stable alias at the selected compatible SFT checkpoint.
+resume_from: storage/checkpoints/vbvr_pro_sft/checkpoint
 reset_dataloader: true
 auto_resume: true
 
@@ -94,7 +95,7 @@ grpo_cfg_scale: 1.0
 dancegrpo_share_group_init_noise: true
 dancegrpo_timestep_selection_ratio: 0.6
 
-vbvr_reward_evalkit_dir: storage/evalkits/vbvr-evalkit-interleave-main_v2
+vbvr_reward_evalkit_dir: storage/evalkits/vbvr-evalkit
 vbvr_reward_evalkit_source_sha256: f99edd06fd39b5025a0a46871fc7280f7353d47e8de45b627a0b0711318fd258
 vbvr_reward_easyocr_module_path: storage/evalkits/easyocr-shared
 vbvr_reward_device: cpu
@@ -109,9 +110,9 @@ vbvr_reward_max_duration_seconds: 5.0
 vbvr_reward_prepare_crf: 12
 vbvr_reward_fail_on_error: true
 vbvr_reward_task_specific_only: true
-vbvr_reward_tmp_dir: storage/tmp/vbvr_pro_a14b_rule_reward_tp2_fsdp4
+vbvr_reward_tmp_dir: storage/tmp/vbvr_pro_a14b_rule
 vbvr_reward_keep_tmp: false
 vbvr_reward_unsupported_score: 0.0
 
-wandb_project: wan-dancegrpo-vbvr-pro-a14b
-wandb_run_name: dancegrpo_vbvr_pro_a14b_256x256x161_rule_cps_bs16_lr1e-5_full_tp2_fsdp4_liger_compile
+wandb_project: vbvr-pro-a14b
+wandb_run_name: a14b_rule

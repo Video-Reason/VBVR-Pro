@@ -4,7 +4,7 @@ trainer: dancegrpo
 # WAN_TRAINER_VLM_DATA_PARALLEL_SIZE and WAN_TRAINER_VLM_TENSOR_PARALLEL_SIZE;
 # all ranks roll out/train Wan 5B. Override output_dir and wandb_run_name for
 # each topology so checkpoints and tracking runs cannot collide.
-model_path: storage/models/diffsynth_converted_5b/wan2.2-TI2V-5B_260715_vbvr_pro_step-35500
+model_path: storage/models/diffsynth_converted_5b/sft_model
 
 # Materialize the already-downloaded public raw snapshot once with:
 # .venv/bin/python -m scripts.data.vbvr_pro_unpack_hf \
@@ -24,7 +24,7 @@ fps: 16
 shuffle_raw_indices: true
 shuffle_raw_indices_seed: 42
 
-output_dir: storage/checkpoints/dancegrpo_vbvr_pro_5b_512x512x81_vlm_qwen36_task_prompts_cps0p7_from_diffsynth_step35500_bs32_lr_5e-6_manifest_rl
+output_dir: storage/checkpoints/vbvr_pro_5b_vlm
 resume_from: null
 reset_dataloader: null
 auto_resume: true
@@ -135,4 +135,4 @@ vlm_reward_error_score: 0
 vlm_reward_log_first_n: 2
 
 wandb_project: wan-dancegrpo-vbvr-pro-5b
-wandb_run_name: dancegrpo_vbvr_pro_5b_512x512x81_vlm_qwen36_task_prompts_cps0p7_from_diffsynth_step35500_bs32_lr_5e-6_manifest_rl
+wandb_run_name: dancegrpo_vbvr_pro_5b_512x512x81_vlm_qwen36_task_prompts_cps0p7_from_diffsynth_sft_bs32_lr_5e-6_manifest_rl

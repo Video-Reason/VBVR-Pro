@@ -1,8 +1,7 @@
 trainer: dancegrpo
 # TI2V-5B DanceGRPO RF-SDE rule-reward reference at eta=0.3.
-# Complete Diffusers pipeline with the DiffSynth step-35500 LoRA merged
-# into the matching Wan2.2 TI2V-5B base.
-model_path: storage/models/diffsynth_converted_5b/wan2.2-TI2V-5B_260715_vbvr_pro_step-35500
+# Complete Diffusers pipeline containing the DiffSynth model after SFT.
+model_path: storage/models/diffsynth_converted_5b/sft_model
 
 # Materialize the already-downloaded public raw snapshot once with:
 # .venv/bin/python -m scripts.data.vbvr_pro_unpack_hf \
@@ -22,7 +21,7 @@ fps: 16
 shuffle_raw_indices: true
 shuffle_raw_indices_seed: 42
 
-output_dir: storage/checkpoints/dancegrpo_vbvr_pro_5b_512x512x81_rule_sde_eta0p3_from_diffsynth_step35500_bs32_lr_5e-6_manifest_rl_evalkit_e140038f
+output_dir: storage/checkpoints/vbvr_pro_5b_sde
 resume_from: null
 # Preserve optimizer/step/epoch/dataloader state when auto-resuming this run.
 reset_dataloader: null
@@ -123,9 +122,9 @@ vbvr_reward_prepare_crf: 12
 # evaluator regression is fixed and covered by a GT self-score regression.
 vbvr_reward_fail_on_error: false
 vbvr_reward_task_specific_only: true
-vbvr_reward_tmp_dir: /tmp/wan-trainer/vbvr_pro_5b_512x512x81_rule_reward_sde_eta0p3_from_diffsynth_step35500_lr5e-6_manifest_rl_evalkit_e140038f
+vbvr_reward_tmp_dir: /tmp/wan-trainer/vbvr_pro_5b_512x512x81_rule_reward_sde_eta0p3_from_diffsynth_sft_lr5e-6_manifest_rl_evalkit_e140038f
 vbvr_reward_keep_tmp: false
 vbvr_reward_unsupported_score: 0.0
 
 wandb_project: wan-dancegrpo-vbvr-pro-5b
-wandb_run_name: dancegrpo_vbvr_pro_5b_512x512x81_rule_sde_eta0p3_from_diffsynth_step35500_bs32_lr_5e-6_manifest_rl_evalkit_e140038f
+wandb_run_name: dancegrpo_vbvr_pro_5b_512x512x81_rule_sde_eta0p3_from_diffsynth_sft_bs32_lr_5e-6_manifest_rl_evalkit_e140038f

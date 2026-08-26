@@ -103,7 +103,7 @@ fish scripts/train/sft_multinode.fish --nproc 8 -- \
 ```
 
 This release keeps one SFT reference. It targets A14B, expects 800,000
-precomputed latent samples at `data/vbvr/latents/sft`, and uses FSDP expert
+precomputed latent samples at `storage/datasets/vbvr_sft`, and uses FSDP expert
 parallelism, so launch it with an even distributed world size. The latent
 dataset is external and is not generated from the public raw RL archives by
 the release setup steps.
@@ -331,12 +331,10 @@ A healthy run should expose:
 - no pending reward workers or replay slots at shutdown;
 - a zero process exit status on every rank.
 
-For a bounded validation, use `max_steps`, keep `save_final_checkpoint: true`,
-and verify changed tensors with
-[`scripts/dev/validate_grpo_parameter_update.py`](../scripts/dev/validate_grpo_parameter_update.py).
-Zero learning rate during warmup or equal group rewards can legitimately
-produce no update, so configure a smoke that can demonstrate the property you
-intend to test.
+For a bounded validation, use a dedicated `output_dir`, set `max_steps`
+explicitly, keep `save_final_checkpoint: true`, and inspect the resulting loss,
+gradient, reward, and checkpoint records. Zero learning rate during warmup or
+equal group rewards can legitimately produce no update.
 
 ## Common Failure Modes
 

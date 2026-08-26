@@ -37,7 +37,7 @@ set -l api_key (set -q WAN_TRAINER_VLM_API_KEY; and echo $WAN_TRAINER_VLM_API_KE
 
 if not test -x $vllm_bin
     echo "ERROR: vLLM executable is missing: $vllm_bin" >&2
-    echo "Run: fish scripts/dev/setup_host_vllm.fish" >&2
+    echo "Create the isolated runtime from requirements/vllm.lock before launch." >&2
     exit 1
 end
 if not test -d $model_path

@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide takes a fresh checkout to a bounded one-GPU training smoke. Model
+This guide takes a fresh checkout through training and evaluation setup. Model
 weights, datasets, evaluator source, and generated artifacts are external to
 the repository and should be placed under the ignored `storage/` directory.
 
@@ -38,7 +38,7 @@ prerequisite for the launchers.
 
 ## 2. Download a Base Model
 
-The bounded smoke profile expects the official TI2V-5B Diffusers model at
+The TI2V-5B workflows expect a compatible Diffusers pipeline beneath
 `storage/models/Wan2.2-TI2V-5B-Diffusers`:
 
 ```bash
@@ -51,51 +51,7 @@ The A14B reference config instead expects
 requirements before downloading either artifact. A config may point at a
 compatible converted or fine-tuned Diffusers directory through `model_path`.
 
-## 3. Create a Local Smoke Dataset
-
-Generate four deterministic H.264 samples with matching first frames and a
-trainer descriptor:
-
-```bash
-.venv/bin/python scripts/dev/create_i2v_smoke_dataset.py \
-  --output-dir storage/smoke/i2v_512x512x81 \
-  --samples 4 \
-  --frames 81 \
-  --height 512 \
-  --width 512 \
-  --fps 16
-```
-
-The output is ignored by Git. Its `dataset.json` follows the same raw-data
-contract as the released VBVR-Pro training configs.
-
-## 4. Run the One-GPU Update Smoke
-
-The validator launches a bounded DanceGRPO step and checks that trainable
-tensors actually change:
-
-```bash
-.venv/bin/torchrun --standalone --nproc_per_node=1 \
-  -m scripts.dev.validate_grpo_parameter_update \
-  --config configs/train_rl_5b_cps.yaml \
-  --one-gpu-smoke \
-  --model-path storage/models/Wan2.2-TI2V-5B-Diffusers \
-  --dataset-json storage/smoke/i2v_512x512x81/dataset.json \
-  --output-dir storage/smoke/checkpoints/rl_5b_update
-```
-
-The validator derives a temporary single-GPU profile from the release config;
-it does not modify the YAML. The smoke uses LoRA, Flow-CPS, and the
-model-internal `neg_loss` reward. It
-covers raw loading, prompt and video encoding, rollout, replay, backward, and
-optimizer update. It deliberately does not require VBVR-Pro data or the
-external rule evaluator.
-
-Start with this smoke before increasing resolution, frame count, group size,
-sampling steps, batch size, or distributed world size. Those dimensions
-multiply memory and runtime.
-
-## 5. Prepare the Public RL Dataset
+## 3. Prepare the Public RL Dataset
 
 Download the video half of the official public dataset at the pinned revision:
 
@@ -126,7 +82,7 @@ byte-compare previously restored files before reuse. The published archives
 are raw assets and are not compatible with `latent_webdataset_dir`. See
 [Data and Precompute](data.md) for the complete schemas.
 
-## 6. Install the Rule Evaluator When Needed
+## 4. Install the Rule Evaluator When Needed
 
 `vbvr_rule` is optional and its evaluator is not bundled. A rule-reward config
 must point to a separately obtained compatible checkout and pin its source
@@ -142,7 +98,7 @@ Follow [External EvalKit](external_evalkit.md) to validate the checkout,
 EasyOCR assets, and scorer runtime. Do not replace an evaluator revision in an
 existing result namespace: evaluator source is part of the metric definition.
 
-## 7. Review a Config Before Launch
+## 5. Review a Config Before Launch
 
 At minimum, verify:
 
@@ -158,7 +114,7 @@ At minimum, verify:
 Configuration precedence is defaults, then YAML, then explicit CLI overrides.
 See [Configuration](configuration.md) for field semantics.
 
-## 8. Launch Training
+## 6. Launch Training
 
 Single-machine SFT:
 
@@ -168,7 +124,7 @@ fish scripts/train/sft_multinode.fish --nproc 8 -- \
 ```
 
 The retained SFT config expects the A14B base model and an external
-800,000-sample latent WebDataset at `data/vbvr/latents/sft`. The public raw RL
+800,000-sample latent WebDataset at `storage/datasets/vbvr_sft`. The public raw RL
 archives prepared above are not a drop-in replacement for those latents.
 
 Single-machine DanceGRPO:
@@ -197,7 +153,7 @@ launcher performs cheap runtime checks before loading model weights.
 Use `configs/train_rl_5b_cps.yaml` for the Flow-CPS eta-0.7 rule reference or
 `configs/train_rl_5b_sde.yaml` for its paired DanceGRPO RF-SDE eta-0.3 run.
 
-## 9. Validate the Checkout
+## 7. Validate the Checkout
 
 Run tests from the explicit project test directory:
 
@@ -236,13 +192,8 @@ uv pip install --python .venv/bin/python --reinstall --no-deps \
 
 ### Triton reports a missing `Python.h`
 
-Install the development headers matching Python 3.12. If the host image cannot
-be changed, this helper provisions an ignored uv-managed Python toolchain and
-validates a fresh Triton driver compile:
-
-```fish
-fish scripts/dev/bootstrap_triton_python_headers.fish
-```
+Install the development headers matching Python 3.12, or point
+`WAN_TRAINER_PYTHON_INCLUDE`/`CPATH` at compatible headers.
 
 The distributed launcher reports this failure before `torchrun` starts.
 
@@ -261,7 +212,7 @@ machine, and its computed fingerprint matches the YAML. Then run:
 Do not assume this is a model-quality result. Check scorer warnings, metadata
 paths, unsupported-task counts, prepared videos, and per-sample errors. Input
 paths passed to scorer workers must resolve before those workers change their
-working directory. For stochastic smoke rewards, score multiple members from
+working directory. For stochastic rewards, score multiple members from
 the same group together so group advantages are not accidentally flat.
 
 ### A restart repeats data unexpectedly

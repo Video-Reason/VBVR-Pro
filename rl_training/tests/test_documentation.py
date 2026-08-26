@@ -56,6 +56,13 @@ def test_only_vbvr_pro_evaluation_surface_is_shipped():
     assert not (_REPO_ROOT / "scripts/eval/vbvr").exists()
     assert not (_REPO_ROOT / "src/eval/vbvr").exists()
     assert not (_REPO_ROOT / "src/cli/eval_vbvr.py").exists()
+    eval_directories = {
+        path.name for path in (_REPO_ROOT / "scripts/eval").iterdir() if path.is_dir() and path.name != "__pycache__"
+    }
+    assert eval_directories == {"vbvr_pro"}
+    assert not (_REPO_ROOT / "src/cli/eval_maze.py").exists()
+    assert not (_REPO_ROOT / "src/eval/maze_tracker_score.py").exists()
+    assert not (_REPO_ROOT / "src/precompute/maze_evalset.py").exists()
 
 
 def test_docs_contains_only_indexed_public_guides():
@@ -133,6 +140,36 @@ def test_removed_training_modes_are_not_shipped():
             if token.lower() in text:
                 violations.append(f"{path.relative_to(_REPO_ROOT)}: {token}")
     assert not violations, f"removed training mode references: {violations}"
+
+
+def test_only_training_and_evaluation_cli_surface_is_shipped():
+    training = {
+        "__init__.py",
+        "config_path.py",
+        "prefetch_attention_kernel.py",
+        "probe_vlm_service.py",
+        "train_grpo.py",
+        "train_i2v.py",
+        "validate_grpo_runtime.py",
+    }
+    evaluation = {
+        "convert_dcp_to_diffusers.py",
+        "eval_i2v.py",
+        "eval_i2v_cps.py",
+        "eval_i2v_euler.py",
+        "eval_i2v_hf_pipeline.py",
+        "eval_vbvr_vlm_outputs.py",
+        "materialize_hf_diffusers_model.py",
+        "prepare_vbvr_eval_videos.py",
+        "summarize_vbvr_pro_results.py",
+    }
+    actual = {path.name for path in (_REPO_ROOT / "src/cli").glob("*.py")}
+    assert actual == training | evaluation
+
+
+def test_standalone_operator_script_directories_are_not_shipped():
+    removed = ("convert", "dev", "download", "inference", "precompute")
+    assert all(not (_REPO_ROOT / "scripts" / name).exists() for name in removed)
 
 
 def test_training_launcher_surface_is_minimal():

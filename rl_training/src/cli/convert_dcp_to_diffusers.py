@@ -19,8 +19,6 @@ from __future__ import annotations
 
 import argparse
 import gc
-import json
-import shutil
 from pathlib import Path
 
 import torch
@@ -93,12 +91,6 @@ def parse_args() -> argparse.Namespace:
         help="Save weights as safetensors",
     )
     parser.add_argument("--max_shard_size", default="10GB", help="Max shard size passed to save_pretrained")
-    parser.add_argument(
-        "--fastvideo_compat",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Write configs/tokenizer files in a form current FastVideo versions can load",
-    )
     return parser.parse_args()
 
 
@@ -199,100 +191,6 @@ def _validate_outputs(outputs: list[Path]) -> None:
             raise FileExistsError(f"Output path already exists and is not an empty directory: {output}")
 
 
-def _copy_base_tokenizer_for_fastvideo(output: Path, base_model: Path) -> None:
-    src = base_model / "tokenizer"
-    dst = output / "tokenizer"
-    if not src.is_dir():
-        logger.warning("Base tokenizer directory does not exist at {}; skipping FastVideo tokenizer cleanup", src)
-        return
-
-    dst.mkdir(parents=True, exist_ok=True)
-    for item in src.iterdir():
-        target = dst / item.name
-        if item.is_dir():
-            if target.exists():
-                shutil.rmtree(target)
-            shutil.copytree(item, target, copy_function=shutil.copyfile)
-        else:
-            shutil.copyfile(item, target)
-    logger.info("Copied base tokenizer files from {} to {}", src, dst)
-
-
-def _strip_config_keys(config_path: Path, keys: tuple[str, ...], description: str) -> None:
-    if not config_path.exists():
-        logger.warning("{} was not written at {}; skipping FastVideo cleanup", description, config_path)
-        return
-
-    config = json.loads(config_path.read_text())
-    removed = False
-    for key in keys:
-        if key in config:
-            config.pop(key)
-            removed = True
-
-    if removed:
-        config_path.write_text(json.dumps(config, indent=2) + "\n")
-        logger.info("Wrote FastVideo-compatible {} at {}", description, config_path)
-
-
-def _write_fastvideo_compatible_component_configs(output: Path) -> None:
-    _strip_config_keys(output / "text_encoder" / "config.json", ("is_decoder",), "text_encoder config")
-    for module_name in ("vae", "transformer", "transformer_2"):
-        _strip_config_keys(
-            output / module_name / "config.json",
-            ("_diffusers_version", "_name_or_path"),
-            f"{module_name} config",
-        )
-
-
-def _write_fastvideo_compatible_configs(output: Path, base_model: Path) -> None:
-    _copy_base_tokenizer_for_fastvideo(output, base_model)
-    _write_fastvideo_compatible_component_configs(output)
-
-    model_index_path = output / "model_index.json"
-    if not model_index_path.exists():
-        logger.warning("model_index.json was not written at {}; skipping FastVideo compatibility cleanup", output)
-    else:
-        model_index = json.loads(model_index_path.read_text())
-        removed = False
-        for key in ("_name_or_path",):
-            if key in model_index:
-                model_index.pop(key)
-                removed = True
-
-        if model_index.get("_class_name") == "WanPipeline" and model_index.get("expand_timesteps"):
-            # Current FastVideo picks its Wan config from model_index._class_name.
-            # The TI2V 5B checkpoint still needs the image-to-video Wan config
-            # while lmms_eval overrides the executable pipeline class to WanPipeline.
-            model_index["_class_name"] = "WanImageToVideoPipeline"
-            model_index.setdefault("image_encoder", [None, None])
-            model_index.setdefault("image_processor", [None, None])
-            removed = True
-
-        if removed:
-            model_index_path.write_text(json.dumps(model_index, indent=2) + "\n")
-            logger.info("Wrote FastVideo-compatible model_index.json at {}", model_index_path)
-
-    scheduler_config_path = output / "scheduler" / "scheduler_config.json"
-    if not scheduler_config_path.exists():
-        logger.warning(
-            "scheduler_config.json was not written at {}; skipping FastVideo scheduler compatibility cleanup",
-            scheduler_config_path,
-        )
-        return
-
-    scheduler_config = json.loads(scheduler_config_path.read_text())
-    removed = False
-    for key in ("shift_terminal", "sigma_min", "sigma_max"):
-        if key in scheduler_config:
-            scheduler_config.pop(key)
-            removed = True
-
-    if removed:
-        scheduler_config_path.write_text(json.dumps(scheduler_config, indent=2) + "\n")
-        logger.info("Wrote FastVideo-compatible scheduler_config.json at {}", scheduler_config_path)
-
-
 def _convert_one(pipe: DiffusionPipeline, args: argparse.Namespace, checkpoint: Path, output: Path) -> None:
     logger.info("Loading DCP checkpoint from {} (ema={})", checkpoint, args.use_ema)
     load_dcp_into_pipeline(pipe, str(checkpoint), use_ema=args.use_ema)
@@ -310,8 +208,6 @@ def _convert_one(pipe: DiffusionPipeline, args: argparse.Namespace, checkpoint: 
         safe_serialization=args.safe_serialization,
         max_shard_size=args.max_shard_size,
     )
-    if args.fastvideo_compat:
-        _write_fastvideo_compatible_configs(output, args.base_model)
     logger.info("Converted model is at {}", output)
 
 

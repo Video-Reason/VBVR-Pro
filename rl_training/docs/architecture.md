@@ -17,14 +17,14 @@ Fish launcher or Python CLI
 ## Source Map
 
 ```text
-src/cli/          user-facing training, generation, conversion, and evaluation CLIs
+src/cli/          user-facing training and evaluation CLIs
 src/models/       Wan model wrapper and LoRA integration
 src/data/         raw Parquet, latent WebDataset, and remote-I/O loaders
 src/trainer/      configs, trainers, rewards, sharding, optimizers, checkpoints
 src/precompute/   video/prompt latent builders and synthetic data generation
 src/eval/         VBVR-Pro scorer adapters, VLM protocol, provenance, reports
 configs/          release training and precompute configurations
-scripts/          Fish launchers and bounded operator utilities
+scripts/          training and evaluation launchers
 tests/            unit, consistency, CLI, and distributed-contract tests
 ```
 

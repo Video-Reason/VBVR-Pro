@@ -68,36 +68,13 @@ Check the installed scorer/media runtime:
 .venv/bin/python -m src.eval.vbvr_runtime
 ```
 
-For a one-GPU end-to-end training smoke, first create a deterministic local
-fixture:
+Before allocating model memory, validate the selected RL config and its reward
+runtime:
 
 ```bash
-.venv/bin/python scripts/dev/create_i2v_smoke_dataset.py \
-  --output-dir storage/smoke/i2v_512x512x81 \
-  --samples 4 \
-  --frames 81 \
-  --height 512 \
-  --width 512 \
-  --fps 16
+.venv/bin/python -m src.cli.validate_grpo_runtime \
+  --config configs/<reviewed-rl-config>.yaml
 ```
-
-Place the official TI2V-5B Diffusers model at
-`storage/models/Wan2.2-TI2V-5B-Diffusers`, then run:
-
-```bash
-.venv/bin/torchrun --standalone --nproc_per_node=1 \
-  -m scripts.dev.validate_grpo_parameter_update \
-  --config configs/train_rl_5b_cps.yaml \
-  --one-gpu-smoke \
-  --model-path storage/models/Wan2.2-TI2V-5B-Diffusers \
-  --dataset-json storage/smoke/i2v_512x512x81/dataset.json \
-  --output-dir storage/smoke/checkpoints/rl_5b_update
-```
-
-This bounded smoke uses LoRA and the model-internal `neg_loss` reward. It
-verifies data loading, T5/VAE encoding, Flow-CPS rollout, replay, backward, and
-a nonzero optimizer update. It does not validate the external rule scorer or a
-production distributed topology.
 
 See [Getting Started](docs/getting_started.md) for model, dataset, evaluator,
 and distributed setup.
@@ -195,7 +172,7 @@ fish scripts/train/sft_multinode.fish --nproc 8 -- \
 ```
 
 This sole SFT reference is an A14B expert-parallel run over 800,000
-precomputed latent samples at `data/vbvr/latents/sft`. Those latents are an
+precomputed latent samples at `storage/datasets/vbvr_sft`. Those latents are an
 external artifact and are not interchangeable with the public raw
 `Video-Reason/VBVR-Pro-RL` archives.
 
@@ -207,7 +184,6 @@ fish scripts/train/grpo_multinode.fish --nproc 8 \
 ```
 
 The A14B reference uses TP2 plus four-way FSDP on one eight-GPU machine.
-For the one-GPU LoRA smoke, use the bounded validator in [Quick Start](#quick-start).
 Production configs are topology-specific and must be reviewed before launch.
 The paired TI2V-5B rule-reward references are
 `configs/train_rl_5b_cps.yaml` (Flow-CPS eta 0.7) and
@@ -326,14 +302,14 @@ model memory:
 ## Repository Map
 
 ```text
-src/cli/          training, inference, conversion, and evaluation entrypoints
+src/cli/          training and evaluation entrypoints
 src/models/       Wan2.2 model wrapper and LoRA integration
 src/data/         raw-media, WebDataset, and remote-I/O loaders
 src/trainer/      SFT/RL trainers, rewards, distributed runtime, checkpoints
 src/precompute/   latent and synthetic-data builders
 src/eval/         VBVR-Pro scoring, provenance, and reporting helpers
 configs/          release training and precompute configs
-scripts/          Fish launchers and operator utilities
+scripts/          training and evaluation launchers
 tests/            focused unit and contract tests
 docs/             public guides and technical references
 ```
@@ -362,8 +338,6 @@ docs/             public guides and technical references
   evaluator checkout and EasyOCR weights.
 - The public 50,000-sample RL snapshot contains raw publication assets and must
   be materialized before raw training.
-- The one-GPU smoke proves plumbing and an optimizer update, not model quality
-  or production-scale memory capacity.
 - VLM rewards require a separately hosted OpenAI-compatible multimodal service.
 - Existing `WAN_TRAINER_*` environment-variable names are retained for
   compatibility even though the released project is named VBVR-RL.

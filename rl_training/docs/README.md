@@ -7,7 +7,7 @@ under the ignored `storage/` tree.
 ## Start Here
 
 1. [Getting Started](getting_started.md) — install the locked environment,
-   download external artifacts, and run a one-GPU smoke.
+   download external artifacts, and prepare a training run.
 2. [Configuration](configuration.md) — understand YAML precedence, data paths,
    distributed topology, rewards, and resume behavior.
 3. [Data](data.md) — prepare raw Parquet data, latent WebDataset shards, and the
