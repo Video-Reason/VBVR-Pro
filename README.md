@@ -6,7 +6,7 @@
     <a href="https://video-reason.com/?v=pro" target="_blank">
         <img alt="Project Page" src="https://img.shields.io/badge/Project%20-%20Homepage-4285F4" height="20" />
     </a>
-    <a href="https://huggingface.co/papers/2602.20159" target="_blank">
+    <a href="https://huggingface.co/papers/2608.26105" target="_blank">
         <img alt="arXiv" src="https://img.shields.io/badge/arXiv-VBVR_Pro-red?logo=arxiv" height="20" />
     </a>
     <a href="https://github.com/Video-Reason/VBVR-Pro" target="_blank">
@@ -35,6 +35,7 @@
 
 Native visual reasoning, i.e., reasoning through visual generation, has recently emerged as a promising direction for studying visual intelligence beyond language. Yet progress remains bottlenecked by the lack of scalable training tasks, reliable feedback, and controlled comparisons across generative substrates. In this work, we introduce **VBVR-Pro**, a closed-loop testbed that makes native visual reasoning through generation trainable, verifiable, optimizable, and experimentally controllable. **1) Task scaling.** VBVR-Pro turns visual reasoning into a controlled task space of *300* procedurally generated tasks. Models trained on VBVR-Pro show strong transfer beyond the proposed suite across *six* held-out visual reasoning benchmarks such as RISE-Video, MME-CoF-Pro, and BabyVision. Further analysis validates that these gains reflect visual reasoning rather than instruction-pattern fitting. **2) Verifiable rewards.** VBVR-Pro provides verifiable reward scorers for task-grounded evaluation. Through a systematic study of leading MLLMs as judges, we identify recurring failure modes of the prevalent *VLM-as-a-judge* paradigm. In contrast, the proposed scorers are grounded on verifiable task-specific rules, achieve fine-grained alignment with human judgments. Importantly, they serve as reliable reward signals for large-scale multi-task reinforcement learning and demonstrate stronger post-RL performance across visual reasoning tasks. **3) Mechanism study.** VBVR-Pro enables controlled modality studies across more than *30* image, video, and interleaved generators. Our analysis shows that video generation remains strongest for tasks requiring persistent spatiotemporal state tracking, while interleaved generation provides a compute-efficient alternative by externalizing intermediate visual states. Critically, ablations and probing confirm the presence of vision-native trajectories, that are a more crucial substrate than explicit linguistic chains of thought for visual reasoning. We release all data, models, scorers, and code to facilitate future research.
 
+The models are presented in the paper [VBVR-Pro: A Scalable and Verifiable Suite for Native Visual Reasoning](https://huggingface.co/papers/2608.26105).
 
 ## Models Zoo
 
@@ -274,14 +275,21 @@ hf download Video-Reason/VBVR-Pro-Bench --repo-type dataset --local-dir data/VBV
 
 After generating outputs, evaluate using [VBVR-Pro-Bench](https://github.com/Video-Reason/VBVR-Pro-Bench) and submit results to the [leaderboard](https://video-reason.com/pro/bench/#leaderboard).
 
+## License
+
+VBVR-Pro source code, scripts, configuration files, task-specific scoring software, and the `rl_training` package are licensed under the Apache License 2.0. VBVR-Pro data and benchmark materials are separately licensed under CC BY-NC 4.0. Model weights and third-party materials remain subject to their applicable model-card and upstream terms. See [LICENSE.md](LICENSE.md) for details.
+
 ## Citation
 
 ```bibtex
-@article{vbvr_pro2026,
-  title={A Scalable and Verifiable Suite for Native Visual Reasoning},
-  author={...},
-  journal={arXiv preprint arXiv:2602.20159},
-  year={2026}
+@misc{xu2026vbvrproscalableverifiablesuite,
+      title={VBVR-Pro: A Scalable and Verifiable Suite for Native Visual Reasoning},
+      author={Junxiang Xu and Ruisi Wang and Fanyi Pu and Maijunxian Wang and Ran Ji and Tongxi Zhou and Chenyang Gu and Jing Zuo and Hongcan Xiao and Yimeng Geng and Wanqi Yin and Wei Chen and Oscar Qian and Zhengan Yan and Ziqi Huang and Haiwen Diao and Liang Pan and Bo Li and Xiangyu Fan and Dezhi Luo and Fengyuan Yu and Zehong Zhao and Qingying Gao and Tinghui Zhu and Yilan Zhang and Jingqi Tong and Pinyuan Feng and Zhengze Jiang and Letian Wang and Ziyu Guo and Renrui Zhang and Jieneng Chen and Sonia Joseph and Constantin Venhoff and Saman Motamed and Mengyue Yang and Chandra Sripada and Alan Yuille and Philip Torr and Lvmin Zhang and Vikash Kumar and Daniel Khashabi and Nikolaus Kriegeskorte and Raphaël Millière and Vincent C. Müller and Anyi Rao and Quan Wang and Ziwei Liu and Dahua Lin and Lei Yang and Hokin Deng and Zhongang Cai},
+      year={2026},
+      eprint={2608.26105},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2608.26105},
 }
 ```
 
