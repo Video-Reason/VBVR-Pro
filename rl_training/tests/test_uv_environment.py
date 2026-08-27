@@ -44,8 +44,6 @@ def test_release_sources_do_not_reference_legacy_environment_commands():
         _REPO_ROOT / "src",
     )
     paths = [
-        _REPO_ROOT / "AGENTS.md",
-        _REPO_ROOT / "CONTRIBUTING.md",
         _REPO_ROOT / "README.md",
         _REPO_ROOT / "pyproject.toml",
     ]

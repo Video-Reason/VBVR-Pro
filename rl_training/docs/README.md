@@ -59,4 +59,4 @@ When text and code differ, use this order:
 4. these guides.
 
 Please report stale commands or broken links through the repository issue
-tracker. See [Contributing](../CONTRIBUTING.md) before submitting a patch.
+tracker.

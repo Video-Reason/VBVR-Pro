@@ -123,8 +123,6 @@ def test_removed_training_modes_are_not_shipped():
     )
     release_sources = [
         _REPO_ROOT / "README.md",
-        _REPO_ROOT / "CHANGELOG.md",
-        _REPO_ROOT / "AGENTS.md",
         *_release_documents(),
         *sorted((_REPO_ROOT / "src").rglob("*.py")),
         *sorted((_REPO_ROOT / "configs").glob("*.yaml")),

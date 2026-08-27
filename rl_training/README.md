@@ -327,8 +327,6 @@ docs/             public guides and technical references
 - [External EvalKit](docs/external_evalkit.md)
 - [VBVR-Pro evaluation reference](docs/vbvr_pro_eval.md)
 - [Qwen VLM reward and judge](docs/vlm_judge_reward.md)
-- [Contributing](CONTRIBUTING.md)
-- [Changelog](CHANGELOG.md)
 
 ## Known Boundaries
 
@@ -341,16 +339,3 @@ docs/             public guides and technical references
 - VLM rewards require a separately hosted OpenAI-compatible multimodal service.
 - Existing `WAN_TRAINER_*` environment-variable names are retained for
   compatibility even though the released project is named VBVR-RL.
-
-## Citation
-
-GitHub-compatible citation metadata is provided in
-[`CITATION.cff`](CITATION.cff). Update its version and release date together
-with future tagged releases.
-
-## License
-
-The repository source is released under the [MIT License](LICENSE). Models,
-datasets, evaluator code, and other external artifacts retain their own
-licenses and terms. Review those terms before downloading or redistributing
-them.
