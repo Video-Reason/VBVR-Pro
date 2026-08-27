@@ -7,6 +7,33 @@ VBVR-Pro repository root. Prepare the isolated environment, model
 initialization, public RL data, and reward runtime before starting a distributed
 job. Run every command below from the repository root.
 
+## Key execution model: one-step-delayed execution
+
+The production TI2V-5B recipes center on a one-step-delayed execution pipeline
+enabled by `grpo_delayed_replay`. A synchronous step waits for rollout *n*, its
+reward, and training update *n* in sequence. The delayed pipeline instead keeps
+one prepared trajectory slot in flight:
+
+1. prefill rollout slot *n* and start its reward work;
+2. prepare slot *n + 1* before replaying slot *n*;
+3. train on slot *n* while reward work for the newer slot can continue, then
+   repeat.
+
+After warm-up, the replayed trajectory is intentionally one optimizer update
+stale. This bounded delay lets reward evaluation overlap adjacent rollout and
+training work without requiring a separate rollout-actor pool. The released
+configs pair it with `grpo_delayed_replay_clip_range: 1.0e-2`, and the trainer
+drains the pending slot before checkpoints, epoch boundaries, and final
+shutdown so no prepared work is dropped.
+
+This pipeline requires shared-prompt mode. It is enabled in
+`train_rl_5b_cps.yaml`, `train_rl_5b_sde.yaml`, and `train_rl_5b_vlm.yaml`; the
+A14B reference uses the standard non-delayed path. It is also distinct from the
+split async-rollout mode, which assigns rollout and reward work to separate
+actor ranks.
+
+![Synchronous and one-step-delayed rollout, reward, and training pipelines](rl_training/docs/imgs/image.png)
+
 | Model | Reward and sampler | Resolution and frames | Reference topology | Config | Launcher |
 | --- | --- | --- | --- | --- | --- |
 | Wan2.2-TI2V-5B | VBVR rule, Flow-CPS eta 0.7 | 512 x 512 x 81 | 16 nodes x 8 GPUs (128 ranks) | `train_rl_5b_cps.yaml` | `grpo_multinode.fish` |
@@ -244,14 +271,6 @@ fish rl_training/scripts/train/grpo_multinode.fish --nproc 8 \
 ```
 
 ## 4. Recipe-specific training instructions
-
-> **Pipeline highlight — one-step-delayed execution.** The production 5B
-> recipes enable `grpo_delayed_replay`: reward evaluation for rollout *n* can
-> overlap the next rollout and the preceding training update, then train *n*
-> consumes the correctly paired one-slot-older trajectory. Pending work is
-> flushed at checkpoint and training boundaries.
-
-![Synchronous and one-step-delayed rollout, reward, and training pipelines](rl_training/docs/imgs/image.png)
 
 ### 4.1 TI2V-5B rule reward with Flow-CPS
 

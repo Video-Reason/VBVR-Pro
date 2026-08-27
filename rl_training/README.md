@@ -17,6 +17,8 @@ and the third-party VBVR evaluator are not bundled.
 - Wan2.2 I2V A14B and TI2V-5B training through Diffusers.
 - Raw Parquet and latent WebDataset input pipelines.
 - Supervised flow-matching and grouped on-policy RL objectives.
+- One-step-delayed shared-prompt execution with bounded one-update staleness
+  across adjacent rollout, reward, and replay work.
 - FSDP2, HSDP, expert parallelism, and RL-only tensor parallelism.
 - Fixed and randomized Flow-CPS coefficients with replay-consistent sampling.
 - Rule-based VBVR-Pro rewards and task-specific Qwen VLM rewards.
