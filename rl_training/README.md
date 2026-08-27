@@ -1,5 +1,11 @@
 # VBVR-RL
 
+> **Project highlight.** VBVR-RL turns paper-scale video RL into a reproducible
+> stack: one-step-delayed reward computation overlaps rollout generation and
+> policy optimization with bounded one-update staleness, alongside matched
+> verifiable-rule and Qwen-judge recipes, 128-GPU HSDP2 references, and a
+> provenance-locked sampler matrix.
+
 The `rl_training/` integration in VBVR-Pro is based on the standalone
 [`pufanyi/vbvr-rl`](https://github.com/pufanyi/vbvr-rl) codebase.
 
