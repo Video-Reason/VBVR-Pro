@@ -65,8 +65,8 @@ Native visual reasoning, i.e., reasoning through visual generation, has recently
     <tr><td><a href="https://huggingface.co/Video-Reason/VBVR-Pro-Wan2.2-I2V-A14B-diffsynth">VBVR-Pro-Wan2.2-I2V-A14B-diffsynth</a></td><td>Wan2.2-I2V-A14B</td><td>LoRA model, DiffSynth format</td></tr>
     <tr><td><a href="https://huggingface.co/Video-Reason/VBVR-Pro-Wan2.2-TI2V-5B">VBVR-Pro-Wan2.2-TI2V-5B</a></td><td>Wan2.2-TI2V-5B</td><td>Complete model, Diffusers format</td></tr>
     <tr><td><a href="https://huggingface.co/Video-Reason/VBVR-Pro-Wan2.2-TI2V-5B-diffsynth">VBVR-Pro-Wan2.2-TI2V-5B-diffsynth</a></td><td>Wan2.2-TI2V-5B</td><td>LoRA model, DiffSynth format</td></tr>
-    <tr><td><a href="https://huggingface.co/pufanyi/VBVR-Pro-Wan2.2-TI2V-5B-RLVR">VBVR-Pro-Wan2.2-TI2V-5B-RLVR</a></td><td>Wan2.2-TI2V-5B</td><td>Complete model, RL with verifiable rewards</td></tr>
-    <tr><td><a href="https://huggingface.co/pufanyi/VBVR-Pro-Wan2.2-TI2V-5B-RLVLM-Qwen3.6-27B-Reward">VBVR-Pro-Wan2.2-TI2V-5B-RLVLM-Qwen3.6-27B-Reward</a></td><td>Wan2.2-TI2V-5B</td><td>Complete model, RL with Qwen3.6-27B VLM rewards</td></tr>
+    <tr><td><a href="https://huggingface.co/Video-Reason/VBVR-Pro-Wan2.2-TI2V-5B-RLVR">VBVR-Pro-Wan2.2-TI2V-5B-RLVR</a></td><td>Wan2.2-TI2V-5B</td><td>Complete model, RL with verifiable rewards</td></tr>
+    <tr><td><a href="https://huggingface.co/Video-Reason/VBVR-Pro-Wan2.2-TI2V-5B-RLVLM-Qwen3.6-27B-Reward">VBVR-Pro-Wan2.2-TI2V-5B-RLVLM-Qwen3.6-27B-Reward</a></td><td>Wan2.2-TI2V-5B</td><td>Complete model, RL with Qwen3.6-27B VLM rewards</td></tr>
   </tbody>
 </table>
 
@@ -171,8 +171,8 @@ hf download Video-Reason/VBVR-Pro-LTX2.3 --local-dir models/VBVR-Pro-LTX2.3
 hf download Video-Reason/VBVR-Pro-Wan2.1-I2V-14B --local-dir models/VBVR-Pro-Wan2.1-I2V-14B
 hf download Video-Reason/VBVR-Pro-Wan2.2-I2V-A14B --local-dir models/VBVR-Pro-Wan2.2-I2V-A14B
 hf download Video-Reason/VBVR-Pro-Wan2.2-TI2V-5B --local-dir models/VBVR-Pro-Wan2.2-TI2V-5B
-hf download pufanyi/VBVR-Pro-Wan2.2-TI2V-5B-RLVR --local-dir models/VBVR-Pro-Wan2.2-TI2V-5B-RLVR
-hf download pufanyi/VBVR-Pro-Wan2.2-TI2V-5B-RLVLM-Qwen3.6-27B-Reward --local-dir models/VBVR-Pro-Wan2.2-TI2V-5B-RLVLM-Qwen3.6-27B-Reward
+hf download Video-Reason/VBVR-Pro-Wan2.2-TI2V-5B-RLVR --local-dir models/VBVR-Pro-Wan2.2-TI2V-5B-RLVR
+hf download Video-Reason/VBVR-Pro-Wan2.2-TI2V-5B-RLVLM-Qwen3.6-27B-Reward --local-dir models/VBVR-Pro-Wan2.2-TI2V-5B-RLVLM-Qwen3.6-27B-Reward
 ```
 
 ### DiffSynth LoRA models (require base model downloads)
