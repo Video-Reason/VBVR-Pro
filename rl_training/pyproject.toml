@@ -4,10 +4,7 @@ version = "0.1.0"
 description = "Distributed Wan2.2 training and reinforcement learning for VBVR-Pro"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
-authors = [
-    { name = "Pu Fanyi", email = "FPU001@e.ntu.edu.sg" },
-]
-license = "MIT"
+license = "Apache-2.0"
 dependencies = [
     "decord2==3.4.0",
     "diffusers[torch]>=0.37.1",
@@ -59,8 +56,8 @@ dev = [
 ]
 
 [project.urls]
-Repository = "https://github.com/pufanyi/vbvr-rl"
-Documentation = "https://github.com/pufanyi/vbvr-rl/tree/main/docs"
+Repository = "https://github.com/Video-Reason/VBVR-Pro"
+Documentation = "https://github.com/Video-Reason/VBVR-Pro/tree/main/rl_training/docs"
 
 [tool.uv]
 required-version = "==0.11.33"

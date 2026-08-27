@@ -90,7 +90,7 @@ def test_release_uses_the_official_vbvr_pro_rl_dataset():
         *sorted((_REPO_ROOT / "configs").glob("*.yaml")),
         _REPO_ROOT / "scripts/data/vbvr_pro_unpack_hf.py",
     ]
-    legacy_reference = "pufanyi/vbvr-pro-rl-indomain-50k"
+    legacy_reference = "Video-Reason/VBVR-Pro-RL"
     assert all(legacy_reference not in path.read_text(encoding="utf-8") for path in sources)
     for relative in ("README.md", "docs/data.md", "docs/getting_started.md"):
         assert "Video-Reason/VBVR-Pro-RL" in (_REPO_ROOT / relative).read_text(encoding="utf-8")

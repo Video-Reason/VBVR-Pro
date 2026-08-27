@@ -22,8 +22,8 @@ coefficient, resolution, or output location does not need a new wrapper.
 ## Published Hugging Face Reproduction
 
 The release reproduction launcher pins the
-[Rule-RL](https://huggingface.co/pufanyi/VBVR-Pro-Wan2.2-TI2V-5B-Rule-RL) and
-[Qwen-Judge-RL](https://huggingface.co/pufanyi/VBVR-Pro-Wan2.2-TI2V-5B-Qwen-Judge-RL)
+[RLVR](https://huggingface.co/Video-Reason/VBVR-Pro-Wan2.2-TI2V-5B-RLVR) and
+[RLVLM-Qwen3.6-27B-Reward](https://huggingface.co/Video-Reason/VBVR-Pro-Wan2.2-TI2V-5B-RLVLM-Qwen3.6-27B-Reward)
 model commits, the reviewed custom pipeline digest, all six paper samplers, and
 the 512×512×81, 30-step, CFG 1.0, 16 FPS, seed-zero generation contract. It
 materializes each snapshot beneath `storage/models/hf-releases`, validates it,

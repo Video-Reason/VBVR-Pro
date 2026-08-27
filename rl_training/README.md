@@ -63,8 +63,8 @@ Training and video generation require CUDA.
 Clone and create the locked environment:
 
 ```bash
-git clone https://github.com/pufanyi/vbvr-rl.git
-cd vbvr-rl
+git clone https://github.com/Video-Reason/VBVR-Pro.git
+cd VBVR-Pro/rl_training
 uv sync --frozen
 uv lock --check
 uv sync --frozen --check

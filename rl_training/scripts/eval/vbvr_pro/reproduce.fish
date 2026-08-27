@@ -129,11 +129,11 @@ for release in $selected_models
     set -l expected_scores
     switch $release
         case rule
-            set repo_id pufanyi/VBVR-Pro-Wan2.2-TI2V-5B-Rule-RL
+            set repo_id Video-Reason/VBVR-Pro-Wan2.2-TI2V-5B-RLVR
             set revision 003373efcbc356e263f4c8d10b3dbb8f5cd7c6d0
             set expected_scores 'cps-0.1=0.509,cps-0.3=0.526,cps-0.7=0.548,cps-0.9=0.539,euler=0.522,unipc=0.522'
         case qwen
-            set repo_id pufanyi/VBVR-Pro-Wan2.2-TI2V-5B-Qwen-Judge-RL
+            set repo_id Video-Reason/VBVR-Pro-Wan2.2-TI2V-5B-RLVLM-Qwen3.6-27B-Reward
             set revision 1282a14cf5379f97ff77326373285533a9e2387d
             set expected_scores 'cps-0.1=0.482,cps-0.3=0.493,cps-0.7=0.508,cps-0.9=0.509,euler=0.488,unipc=0.497'
     end

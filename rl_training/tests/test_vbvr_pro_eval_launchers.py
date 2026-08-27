@@ -225,6 +225,8 @@ def test_release_reproduction_dry_run_expands_both_pinned_matrices() -> None:
     )
     assert result.returncode == 0, result.stdout + result.stderr
     assert result.stdout.count("[assignment]") == 12
+    assert "Video-Reason/VBVR-Pro-Wan2.2-TI2V-5B-RLVR" in result.stdout
+    assert "Video-Reason/VBVR-Pro-Wan2.2-TI2V-5B-RLVLM-Qwen3.6-27B-Reward" in result.stdout
     assert "003373efcbc356e263f4c8d10b3dbb8f5cd7c6d0" in result.stdout
     assert "1282a14cf5379f97ff77326373285533a9e2387d" in result.stdout
     assert "cps-0.7=0.548" in result.stdout

@@ -106,13 +106,13 @@ those checks occur in the real pipeline.
 
 `scripts/eval/vbvr_pro/reproduce.fish` is the single parameterized reproduction
 entrypoint for the published
-[Rule-RL](https://huggingface.co/pufanyi/VBVR-Pro-Wan2.2-TI2V-5B-Rule-RL) and
-[Qwen-Judge-RL](https://huggingface.co/pufanyi/VBVR-Pro-Wan2.2-TI2V-5B-Qwen-Judge-RL)
+[RLVR](https://huggingface.co/Video-Reason/VBVR-Pro-Wan2.2-TI2V-5B-RLVR) and
+[RLVLM-Qwen3.6-27B-Reward](https://huggingface.co/Video-Reason/VBVR-Pro-Wan2.2-TI2V-5B-RLVLM-Qwen3.6-27B-Reward)
 TI2V-5B releases. It pins:
 
 ```text
-Rule-RL model revision:       003373efcbc356e263f4c8d10b3dbb8f5cd7c6d0
-Qwen-Judge-RL model revision: 1282a14cf5379f97ff77326373285533a9e2387d
+RLVR model revision:   003373efcbc356e263f4c8d10b3dbb8f5cd7c6d0
+RLVLM model revision:  1282a14cf5379f97ff77326373285533a9e2387d
 pipeline.py SHA-256:          968acf1b214bce097f4d034bf26923dbf496ac319c1adb6560c16089f2ab0e50
 samplers:                     cps:0.1,cps:0.3,cps:0.7,cps:0.9,euler,unipc
 media:                        512x512x81 at 16 FPS
