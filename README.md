@@ -251,9 +251,7 @@ For reproducible data preparation and distributed training, use the guide for
 the intended stage:
 
 - supervised fine-tuning: [`TRAINING.md`](TRAINING.md);
-- reinforcement learning, based on
-  [`pufanyi/vbvr-rl`](https://github.com/pufanyi/vbvr-rl):
-  [`RL_TRAINING.md`](RL_TRAINING.md).
+- reinforcement learning: [`RL_TRAINING.md`](RL_TRAINING.md).
 
 ## Development
 

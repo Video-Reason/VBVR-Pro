@@ -19,11 +19,11 @@ Requirements:
 Clone the repository and reproduce the lockfile exactly:
 
 ```bash
-git clone https://github.com/pufanyi/vbvr-rl.git
-cd vbvr-rl
-uv sync --frozen
+git clone https://github.com/Video-Reason/VBVR-Pro.git
+cd VBVR-Pro/rl_training
+uv sync --locked
 uv lock --check
-uv sync --frozen --check
+uv sync --locked --check
 ```
 
 Run a cheap import and media-runtime check:
