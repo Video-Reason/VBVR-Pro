@@ -25,7 +25,7 @@ Suggested attribution:
 
 > VBVR-Pro, © 2026 Hippocampal, Inc., licensed under CC BY-NC 4.0.
 
-For commercial data-licensing inquiries, contact Hippocampal, Inc. at hokin@hippocampal.xyz.
+For commercial data-licensing inquiries, contact Hippocampal, Inc. at inquiry@hippocampal.xyz.
 
 ## Code — Apache License 2.0
 
