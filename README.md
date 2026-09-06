@@ -133,7 +133,7 @@ The models are presented in the paper [VBVR-Pro: A Scalable and Verifiable Suite
 
 ## Installation
 
-We recommend using [uv](https://docs.astral.sh/uv/) to manage the unified Python 3.10 environment.
+We recommend using [uv](https://docs.astral.sh/uv/) to manage a unified Python 3.10 environment.
 
 > uv installation guide: <https://docs.astral.sh/uv/getting-started/installation/#installing-uv>
 
