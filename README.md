@@ -208,42 +208,45 @@ All models are invoked through the unified `example.py` CLI:
 # Image editing (FLUX.2 merged)
 python example.py \
   --model_path models/VBVR-Pro-FLUX2-dev \
-  --image_paths first_frame.png \
-  --prompt "Move the red block to the left of the blue block." \
+  --image_paths assets/examples/image/G-3_stable_sort_data-generator/first_frame.png \
+  --prompt_file assets/examples/image/G-3_stable_sort_data-generator/prompt.txt \
   --output flux_edit.png
 
 # Video generation (Wan2.2 merged)
 python example.py \
   --model_path models/VBVR-Pro-Wan2.2-I2V-A14B \
-  --image_paths first_frame.png \
-  --prompt "The subject walks toward the doorway." \
-  --num_frames 81 --width 832 --height 480 \
+  --image_paths assets/examples/video/O-11_shape_color_then_move_data-generator/first_frame.png \
+  --prompt_file assets/examples/video/O-11_shape_color_then_move_data-generator/prompt.txt \
+  --num_frames 81 --width 512 --height 512 \
   --output wan.mp4
 
 # Audio-video generation (LTX-2.3 merged)
 python example.py \
   --model_path models/VBVR-Pro-LTX2.3 \
-  --image_paths first_frame.png \
-  --prompt "The machine starts and makes a quiet mechanical hum." \
+  --image_paths assets/examples/video/G-160_circle_largest_numerical_value_data-generator/first_frame.png \
+  --prompt_file assets/examples/video/G-160_circle_largest_numerical_value_data-generator/prompt.txt \
   --num_frames 49 --fps 24 \
   --output ltx.mp4
 
 # Interleaved generation with reasoning (ThinkMorph)
 python example.py \
   --model_path models/VBVR-Pro-ThinkMorph \
-  --image_paths first_frame.png \
-  --prompt "Solve the task step by step." \
-  --think --max_rounds 10 --num_images 2 \
+  --image_paths assets/examples/image/G-13_grid_number_sequence_data-generator/first_frame.png \
+  --prompt_file assets/examples/image/G-13_grid_number_sequence_data-generator/prompt.txt \
+  --think --max_rounds 10 --num_images 4 \
   --output thinkmorph_outputs
 
 # DiffSynth LoRA (downloads base on first use)
 python example.py \
   --model_path models/VBVR-Pro-Qwen-Image-Edit-diffsynth \
-  --image_paths first_frame.png \
-  --prompt "Place the cup on the empty shelf." \
+  --image_paths assets/examples/image/G-160_circle_largest_numerical_value_data-generator/first_frame.png \
+  --prompt_file assets/examples/image/G-160_circle_largest_numerical_value_data-generator/prompt.txt \
   --output qwen_lora.png
 ```
 
+To run on your own inputs, pass any image via `--image_paths` and the instruction via
+`--prompt "..."` or `--prompt_file`. More inputs are available in
+[VBVR-Pro-Bench](https://huggingface.co/datasets/Video-Reason/VBVR-Pro-Bench).
 Use `python example.py --list-models` for the full list of supported model types.
 
 ## Training

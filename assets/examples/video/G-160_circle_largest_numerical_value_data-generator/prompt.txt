@@ -1,0 +1,1 @@
+The scene shows 6 numbers on a white canvas. First compare the numerical values of all numbers, then draw one red circle around the single largest number. Do not circle any other numbers. Show the complete circling process step by step. Only modify what the task requires; keep the background and any other element unchanged.

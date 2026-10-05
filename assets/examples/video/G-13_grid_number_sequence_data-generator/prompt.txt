@@ -1,0 +1,1 @@
+Guide the agent from green to red, passing through yellow numbers in sequence (1→2→3→...). Move only up, down, left, or right. Optimize the path length between each pair of consecutive waypoints. Only modify what the task requires; keep the background and any other element unchanged.
